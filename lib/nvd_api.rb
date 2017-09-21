@@ -38,13 +38,19 @@ class Meta
     end
 end
 
+# a = Scraper.new
+# a.scrap
+# a.feeds
+# ---
+# @feeds is an array of hash
 class Scraper
-    attr_reader :url, :feed
+    attr_reader :url
     def initialize
         @url = "https://nvd.nist.gov/vuln/data-feeds"
-        @feed = Array.new
+        @feeds = Array.new
     end
 
+    # return 0 if all good
     def scrap
         uri = URI(@url)
         html = Net::HTTP.get(uri)
@@ -56,7 +62,28 @@ class Scraper
             meta = tr.css('td')[2].css('> a').attr('href').value
             gz = tr.css('+ tr > td > a').attr('href').value
             zip = tr.css('+ tr + tr > td > a').attr('href').value
-            @feed.push({"name" => name, "updated" => updated, "meta" => meta, "gz" => gz, "zip" => zip})
+            @feeds.push({"name" => name, "updated" => updated, "meta" => meta, "gz" => gz, "zip" => zip})
+        end
+    end
+
+    # Look for feeds
+    # ---
+    # a.feeds => all feeds [{}]
+    # a.feeds("CVE-2005") => return only CVE-2005 [{}]
+    # a.feeds("CVE-2005", "CVE-2002") => return CVE-2005 and CVE-2002 [{}]
+    # a.feeds("wrong") => empty array []
+    # etc...
+    def feeds(*arg_feeds)
+        if arg_feeds.length == 0
+            return @feeds
+        else
+            matched_feeds = []
+            @feeds.each do |feed| # feed is a hash
+                if arg_feeds.include?(feed["name"])
+                    matched_feeds.push(feed)
+                end
+            end
+            return matched_feeds
         end
     end
 end
