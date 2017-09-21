@@ -1,0 +1,23 @@
+PATH
+  remote: .
+  specs:
+    nvd_api (0.0.0)
+      nokogiri (~> 1.8.0)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    mini_portile2 (2.2.0)
+    nokogiri (1.8.0)
+      mini_portile2 (~> 2.2.0)
+    yard (0.9.9)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  nvd_api!
+  yard
+
+BUNDLED WITH
+   1.15.4

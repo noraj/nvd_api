@@ -20,7 +20,11 @@ Gem::Specification.new do |s|
     s.test_files    = s.files.grep(%r{^(test)/})
     s.require_paths = ["lib"]
 
+    s.metadata["yard.run"] = "yri" # use "yard" to build full HTML docs.
+
     s.required_ruby_version = '>= 2.4.0'
 
     s.add_dependency("nokogiri", "~> 1.8.0")
+
+    s.add_development_dependency("yard")
 end
