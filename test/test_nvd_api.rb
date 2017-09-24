@@ -1,6 +1,7 @@
 require 'minitest/autorun'
 require 'nvd_api'
 
+# @todo WRITE NEW TESTS
 class NVDAPITest < Minitest::Test
     def setup
         @s = Scraper.new
