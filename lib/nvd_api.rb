@@ -42,13 +42,13 @@ class Scraper
         html = Net::HTTP.get(uri)
 
         doc = Nokogiri::HTML(html)
+        @feeds = Array.new
         doc.css('h3#JSON_FEED ~ div.row:first-of-type table.xml-feed-table > tbody > tr[data-testid$=desc]').each do |tr|
             name = tr.css('td')[0].text
             updated = tr.css('td')[1].text
             meta = tr.css('td')[2].css('> a').attr('href').value
             gz = tr.css('+ tr > td > a').attr('href').value
             zip = tr.css('+ tr + tr > td > a').attr('href').value
-            @feeds = Array.new
             @feeds.push(Feed.new(name, updated, meta, gz, zip))
         end
     end
