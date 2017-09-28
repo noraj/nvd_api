@@ -104,21 +104,45 @@ class Scraper
         return feed_names
     end
 
+    # Manage the meta file from a feed.
+    # @attr_reader [String] lastModifiedDate The last modified date and time.
+    # @attr_reader [String] size The size of the JSON file uncompressed.
+    # @attr_reader [String] zipSize The size of the zip file.
+    # @attr_reader [String] gzSize The size of the gz file.
+    # @attr_reader [String] sha256 The SHA256 value of the uncompressed JSON file.
+    # @example
+    #   s = Scraper.new
+    #   s.scrap
+    #   metaUrl = s.feeds("CVE-2014").meta
+    #   m = Scraper::Meta.new
+    #   m.url = metaUrl
+    #   m.parse
+    #   m.sha256
     class Meta
         attr_reader :lastModifiedDate, :size, :zipSize, :gzSize, :sha256
         def initialize(url=nil)
             @url = url
         end
 
+        # Meta URL getter.
+        # @return [String] The URL of the meta file of the feed.
         def url
             @url
         end
 
+        # Meta URL setter.
         def url=(url)
             @url = url
             @lastModifiedDate = @size = @zipSize = @gzSize = @sha256 = nil
         end
 
+        # Parse the meta file from the URL and set the attributes.
+        # @overload parse
+        #   Parse the meta file from the URL and set the attributes.
+        #   @return [Integer] Returns +0+ when there is no error.
+        # @overload parse(url)
+        #   Set the URL of the meta file of the feed.
+        #   @param url [String] The URL of the meta file of the feed.
         def parse(*arg)
             if arg.length == 0
             elsif arg.length == 1 # arg = url
