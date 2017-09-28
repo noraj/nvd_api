@@ -19,13 +19,11 @@ class NVDAPITest < Minitest::Test
 
     def test_Scraper_feeds_witharg
         # one arg
-        assert_instance_of(Array, @s.feeds("CVE-2017"), "feeds doesn't return an array")
-        refute_empty(@s.feeds("CVE-2017"), "feeds returns an empty array")
+        assert_instance_of(Scraper::Feed, @s.feeds("CVE-2017"), "feeds doesn't return a Feed object")
         # two args
         assert_instance_of(Array, @s.feeds("CVE-2017", "CVE-Modified"), "feeds doesn't return an array")
         refute_empty(@s.feeds("CVE-2017", "CVE-Modified"), "feeds returns an empty array")
         # bad arg
-        assert_instance_of(Array, @s.feeds("wrong"), "feeds doesn't return an array")
-        assert_empty(@s.feeds("wrong"), "feeds doesn't return an empty array")
+        assert_nil(@s.feeds("wrong"), "feeds")
     end
 end
