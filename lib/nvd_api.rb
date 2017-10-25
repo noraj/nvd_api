@@ -146,11 +146,9 @@ class Scraper
         raise 'Too much arguments'
       end
 
-      if !@url.nil?
-        uri = URI(@url)
-      else
-        raise "Can't parse if the URL is empty"
-      end
+      raise "Can't parse if the URL is empty" if @url.nil?
+      uri = URI(@url)
+
       meta = Net::HTTP.get(uri)
 
       meta = Hash[meta.split.map { |x| x.split(':', 2) }]

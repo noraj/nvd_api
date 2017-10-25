@@ -1,3 +1,3 @@
-module Nvd_api
-    VERSION = "0.0.0"
+module NvdApi
+  VERSION = '0.0.0'.freeze
 end
