@@ -4,7 +4,7 @@ require 'nvd_feed_api'
 # @todo WRITE NEW TESTS
 class NVDAPITest < Minitest::Test
   def setup
-    @s = Scraper.new
+    @s = NVDFeedScraper.new
     @s.scrap # needed for feeds method
   end
 
@@ -19,7 +19,7 @@ class NVDAPITest < Minitest::Test
 
   def test_scraper_feeds_witharg
     # one arg
-    assert_instance_of(Scraper::Feed, @s.feeds('CVE-2017'), "feeds doesn't return a Feed object")
+    assert_instance_of(NVDFeedScraper::Feed, @s.feeds('CVE-2017'), "feeds doesn't return a Feed object")
     # two args
     assert_instance_of(Array, @s.feeds('CVE-2017', 'CVE-Modified'), "feeds doesn't return an array")
     refute_empty(@s.feeds('CVE-2017', 'CVE-Modified'), 'feeds returns an empty array')
@@ -38,7 +38,7 @@ class NVDAPITest < Minitest::Test
     meta = 'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2010.meta'
     gz = 'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2010.json.gz'
     zip = 'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2010.json.zip'
-    f = Scraper::Feed.new(name, updated, meta, gz, zip)
+    f = NVDFeedScraper::Feed.new(name, updated, meta, gz, zip)
     # Test name
     assert_instance_of(String, f.name, "Feed.name doesn't return a string")
     refute_empty(f.name, 'Feed.name is empty')

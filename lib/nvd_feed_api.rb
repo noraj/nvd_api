@@ -5,13 +5,14 @@ require 'nokogiri'
 
 # The class that parse NVD website to get information.
 # @attr_reader [String] url The NVD url where is located the data feeds.
-# @example Initialize a Scraper object, get the feeds and see them:
-#   scraper = Scraper.new
+# @example Initialize a NVDFeedScraper object, get the feeds and see them:
+#   scraper = NVDFeedScraper.new
 #   scraper.scrap
+#   scraper.available_feeds
 #   scraper.feeds
 #   scraper.feeds("CVE-2007")
 #   cve2007, cve2015 = scraper.feeds("CVE-2007", "CVE-2015")
-class Scraper
+class NVDFeedScraper
   # Feed object.
   # @attr_reader [String] name Name of the feed.
   # @attr_reader [String] updated Last update date of the feed.
@@ -108,10 +109,10 @@ class Scraper
   # @attr_reader [String] gzSize The size of the gz file.
   # @attr_reader [String] sha256 The SHA256 value of the uncompressed JSON file.
   # @example
-  #   s = Scraper.new
+  #   s = NVDFeedScraper.new
   #   s.scrap
   #   metaUrl = s.feeds("CVE-2014").meta
-  #   m = Scraper::Meta.new
+  #   m = NVDFeedScraper::Meta.new
   #   m.url = metaUrl
   #   m.parse
   #   m.sha256
