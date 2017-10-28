@@ -1,3 +1,0 @@
-#!/usr/bin/env ruby
-
-require 'nvd_api'

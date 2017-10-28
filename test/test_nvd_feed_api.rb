@@ -1,5 +1,5 @@
 require 'minitest/autorun'
-require 'nvd_api'
+require 'nvd_feed_api'
 
 # @todo WRITE NEW TESTS
 class NVDAPITest < Minitest::Test

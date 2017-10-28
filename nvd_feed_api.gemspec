@@ -1,17 +1,17 @@
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'nvd_api/version'
+require 'nvd_feed_api/version'
 
 Gem::Specification.new do |s|
-  s.name          = 'nvd_api'
-  s.version       = NvdApi::VERSION
+  s.name          = 'nvd_feed_api'
+  s.version       = NvdFeedApi::VERSION
   s.platform      = Gem::Platform::RUBY
   s.date          = '2017-09-10'
-  s.summary       = 'API for NVD CVE'
-  s.description   = 'A simple API for NVD CVE'
+  s.summary       = 'API for NVD CVE feeds'
+  s.description   = 'A simple API for NVD CVE feeds'
   s.authors       = ['Alexandre ZANNI']
   s.email         = 'alexandre.zanni@europe.com'
-  s.homepage      = 'http://rubygems.org/gems/nvd_api'
+  s.homepage      = 'http://rubygems.org/gems/nvd_feed_api'
   s.license       = 'MIT'
 
   s.files         = `git ls-files`.split("\n")
