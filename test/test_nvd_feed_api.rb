@@ -60,4 +60,12 @@ class NVDAPITest < Minitest::Test
     refute_empty(f.zip, 'Feed.zip is empty')
     assert_equal(f.zip, zip, 'The zip url of the feed was modified')
   end
+
+  def test_meta_parse
+    skip('TODO')
+  end
+
+  def test_meta_attributes
+    skip('TODO')
+  end
 end
