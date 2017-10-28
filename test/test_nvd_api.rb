@@ -26,4 +26,38 @@ class NVDAPITest < Minitest::Test
     # bad arg
     assert_nil(@s.feeds('wrong'), 'feeds')
   end
+
+  def test_scraper_available_feeds
+    assert_instance_of(Array, @s.available_feeds, "available_feeds doesn't return an array")
+    refute_empty(@s.available_feeds, 'available_feeds returns an empty array')
+  end
+
+  def test_feed_attributes
+    name = 'CVE-2010'
+    updated = '10/27/2017 3:17:23 AM -04:00'
+    meta = 'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2010.meta'
+    gz = 'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2010.json.gz'
+    zip = 'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2010.json.zip'
+    f = Scraper::Feed.new(name, updated, meta, gz, zip)
+    # Test name
+    assert_instance_of(String, f.name, "Feed.name doesn't return a string")
+    refute_empty(f.name, 'Feed.name is empty')
+    assert_equal(f.name, name, 'The name of the feed was modified')
+    # Test updated
+    assert_instance_of(String, f.updated, "Feed.updated doesn't return a string")
+    refute_empty(f.updated, 'Feed.updated is empty')
+    assert_equal(f.updated, updated, 'The updated date of the feed was modified')
+    # Test meta
+    assert_instance_of(String, f.meta, "Feed.meta doesn't return a string")
+    refute_empty(f.meta, 'Feed.meta is empty')
+    assert_equal(f.meta, meta, 'The meta url of the feed was modified')
+    # Test gz
+    assert_instance_of(String, f.gz, "Feed.gz doesn't return a string")
+    refute_empty(f.gz, 'Feed.gz is empty')
+    assert_equal(f.gz, gz, 'The gz url of the feed was modified')
+    # Test zip
+    assert_instance_of(String, f.zip, "Feed.zip doesn't return a string")
+    refute_empty(f.zip, 'Feed.zip is empty')
+    assert_equal(f.zip, zip, 'The zip url of the feed was modified')
+  end
 end
