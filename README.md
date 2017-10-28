@@ -1,6 +1,6 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e595382d940a4c6b9439325b9e50d398)](https://www.codacy.com/app/noraj1337/nvd_api?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=noraj1337/nvd_api&amp;utm_campaign=Badge_Grade)
 
-# nvd_api
+# nvd_feed_api
 
 Name            | Link
 ---             | ---
