@@ -4,7 +4,6 @@ require 'net/https'
 require 'nokogiri'
 
 # The class that parse NVD website to get information.
-# @attr_reader [String] url The NVD url where is located the data feeds.
 # @example Initialize a NVDFeedScraper object, get the feeds and see them:
 #   scraper = NVDFeedScraper.new
 #   scraper.scrap
@@ -13,6 +12,9 @@ require 'nokogiri'
 #   scraper.feeds("CVE-2007")
 #   cve2007, cve2015 = scraper.feeds("CVE-2007", "CVE-2015")
 class NVDFeedScraper
+  # The NVD url where is located the data feeds.
+  URL = 'https://nvd.nist.gov/vuln/data-feeds'.freeze
+
   # Feed object.
   # @attr_reader [String] name Name of the feed.
   # @attr_reader [String] updated Last update date of the feed.
@@ -30,9 +32,8 @@ class NVDFeedScraper
     end
   end
 
-  attr_reader :url
   def initialize
-    @url = 'https://nvd.nist.gov/vuln/data-feeds'
+    @url = URL
     @feeds = nil
   end
 
@@ -103,11 +104,15 @@ class NVDFeedScraper
   end
 
   # Manage the meta file from a feed.
+  #
   # @attr_reader [String] lastModifiedDate The last modified date and time.
   # @attr_reader [String] size The size of the JSON file uncompressed.
   # @attr_reader [String] zipSize The size of the zip file.
   # @attr_reader [String] gzSize The size of the gz file.
   # @attr_reader [String] sha256 The SHA256 value of the uncompressed JSON file.
+  #
+  # == Usage
+  #
   # @example
   #   s = NVDFeedScraper.new
   #   s.scrap
@@ -116,8 +121,20 @@ class NVDFeedScraper
   #   m.url = metaUrl
   #   m.parse
   #   m.sha256
+  #
+  # Several ways to set the url:
+  #
+  #   m = NVDFeedScraper::Meta.new(metaUrl)
+  #   m.parse
+  #   # or
+  #   m = NVDFeedScraper::Meta.new
+  #   m.url = metaUrl
+  #   m.parse
+  #   # or
+  #   m = NVDFeedScraper::Meta.new
+  #   m.parse(metaUrl)
   class Meta
-    attr_reader :lastModifiedDate, :size, :zipSize, :gzSize, :sha256
+    attr_reader :last_modified_date, :size, :zip_size, :gz_size, :sha256
     def initialize(url = nil)
       @url = url
     end
@@ -137,8 +154,10 @@ class NVDFeedScraper
     #   Parse the meta file from the URL and set the attributes.
     #   @return [Integer] Returns +0+ when there is no error.
     # @overload parse(url)
-    #   Set the URL of the meta file of the feed.
+    #   Set the URL of the meta file of the feed and
+    #   parse the meta file from the URL and set the attributes.
     #   @param url [String] The URL of the meta file of the feed.
+    #   @return [Integer] Returns +0+ when there is no error.
     def parse(*arg)
       if arg.empty?
       elsif arg.length == 1 # arg = url
