@@ -21,13 +21,13 @@ Gem::Specification.new do |s|
 
   s.metadata['yard.run'] = 'yri' # use "yard" to build full HTML docs.
 
-  s.required_ruby_version = '>= 2.4.0'
+  s.required_ruby_version = '~> 2.4'
 
-  s.add_dependency('nokogiri', '~> 1.8.0')
+  s.add_dependency('nokogiri', '~> 1.8')
 
-  s.add_development_dependency('github-markup') # for GMF support in YARD
-  s.add_development_dependency('minitest')
-  s.add_development_dependency('redcarpet') # for GMF support in YARD
-  s.add_development_dependency('rubocop')
-  s.add_development_dependency('yard')
+  s.add_development_dependency('github-markup', '~> 1.6') # for GMF support in YARD
+  s.add_development_dependency('minitest', '~> 5.10')
+  s.add_development_dependency('redcarpet', '~> 3.4') # for GMF support in YARD
+  s.add_development_dependency('rubocop', '~> 0.51')
+  s.add_development_dependency('yard', '~> 0.9')
 end

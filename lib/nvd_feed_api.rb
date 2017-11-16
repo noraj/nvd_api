@@ -2,6 +2,7 @@
 
 require 'net/https'
 require 'nokogiri'
+require 'nvd_feed_api/version'
 
 # The class that parse NVD website to get information.
 # @example Initialize a NVDFeedScraper object, get the feeds and see them:
@@ -14,6 +15,8 @@ require 'nokogiri'
 class NVDFeedScraper
   # The NVD url where is located the data feeds.
   URL = 'https://nvd.nist.gov/vuln/data-feeds'.freeze
+  # Load constants
+  include NvdFeedApi
 
   # Feed object.
   class Feed
