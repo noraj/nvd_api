@@ -1,5 +1,6 @@
 require 'minitest/autorun'
 require 'nvd_feed_api'
+require 'date'
 
 # @todo WRITE NEW TESTS
 class NVDAPITest < Minitest::Test
@@ -61,11 +62,46 @@ class NVDAPITest < Minitest::Test
     assert_equal(f.zip, zip, 'The zip url of the feed was modified')
   end
 
-  def test_meta_parse
-    skip('TODO')
+  def test_meta_parse_noarg
+    m = NVDFeedScraper::Meta.new('https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2015.meta')
+    assert_equal(m.parse, 0, 'parse method return nothing')
+  end
+
+  def test_meta_parse_witharg
+    m = NVDFeedScraper::Meta.new
+    meta_url = 'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2015.meta'
+    assert_equal(m.parse(meta_url), 0, 'parse method return nothing')
+  end
+
+  def test_meta_url_setter
+    m = NVDFeedScraper::Meta.new
+    meta_url = 'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2015.meta'
+    assert_equal(m.url = meta_url, meta_url, 'the meta URL is not set correctly')
   end
 
   def test_meta_attributes
-    skip('TODO')
+    m = NVDFeedScraper::Meta.new
+    meta_url = 'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2015.meta'
+    m.url = meta_url
+    m.parse
+    # Test gz_size
+    assert_instance_of(String, m.gz_size, "Meta gz_size method doesn't return a string")
+    assert(m.gz_size.match?(/[0-9]+/), 'Meta gz_size is not an integer')
+    # Test last_modified_date
+    assert_instance_of(String, m.last_modified_date, "Meta last_modified_date method doesn't return a string")
+    ## Date and time of day for calendar date (extended) '%FT%T%:z'
+    assert(Date.rfc3339(m.last_modified_date), 'Meta last_modified_date is not a rfc3339 date')
+    # Test sha256
+    assert_instance_of(String, m.sha256, "Meta sha256 method doesn't return a string")
+    assert(m.sha256.match?(/[0-9A-F]{64}/), 'Meta sha256 is not a sha256 string matching /[0-9A-F]{64}/')
+    # Test size
+    assert_instance_of(String, m.size, "Meta size method doesn't return a string")
+    assert(m.size.match?(/[0-9]+/), 'Meta size is not an integer')
+    # Test url
+    assert_instance_of(String, m.url, "Meta url method doesn't return a string")
+    assert_equal(m.url, meta_url, 'The Meta url was modified')
+    # Test zip_size
+    assert_instance_of(String, m.zip_size, "Meta zip_size method doesn't return a string")
+    assert(m.zip_size.match?(/[0-9]+/), 'Meta zip_size is not an integer')
   end
 end
