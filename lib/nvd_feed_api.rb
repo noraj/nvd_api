@@ -25,7 +25,7 @@ class NVDFeedScraper
     #   'CVE-2007'
     attr_reader :name
 
-    # @return [String] the last update date of the feed.
+    # @return [String] the last update date of the feed information on the NVD website.
     # @example
     #   '10/19/2017 3:27:02 AM -04:00'
     attr_reader :updated
@@ -33,33 +33,95 @@ class NVDFeedScraper
     # @return [String] the URL of the metadata file of the feed.
     # @example
     #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.meta'
-    attr_reader :meta
+    attr_reader :meta_url
 
     # @return [String] the URL of the gz archive of the feed.
     # @example
     #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.json.gz'
-    attr_reader :gz
+    attr_reader :gz_url
 
     # @return [String] the URL of the zip archive of the feed.
     # @example
     #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.json.zip'
-    attr_reader :zip
+    attr_reader :zip_url
+
+    # @return [Meta] the {Meta} object of the feed.
+    # @note Return nil if not previously loaded by {Feed#meta_pull}.
+    # @example
+    #   s = NVDFeedScraper.new
+    #   s.scrap
+    #   f = s.feeds("CVE-2014")
+    #   f.meta # => nil
+    #   f.meta_pull
+    #   f.meta # => #<NVDFeedScraper::Meta:0x00555b53027570 ... >
+    attr_reader :meta
 
     # A new instance of Feed.
     # @param name [String] see {#name}.
     # @param updated [String] see {#updated}.
-    # @param meta [String] see {#meta}.
-    # @param gz [String] see {#gz}.
-    # @param zip [String] see {#zip}.
-    def initialize(name, updated, meta, gz, zip)
+    # @param meta_url [String] see {#meta_url}.
+    # @param gz_url [String] see {#gz_url}.
+    # @param zip_url [String] see {#zip_url}.
+    # @param meta [Meta] see {Meta}.
+    def initialize(name, updated, meta_url, gz_url, zip_url)
       @name = name
       @updated = updated
-      @meta = meta
-      @gz = gz
-      @zip = zip
+      @meta_url = meta_url
+      @gz_url = gz_url
+      @zip_url = zip_url
+      # do not pull meta automatically for speed and memory footprint
+      @meta = nil
+    end
+
+    # Create or update the {Meta} object.
+    # @return [Meta] the updated {Meta} object of the feed.
+    # @see #meta
+    def meta_pull
+      meta_content = NVDFeedScraper::Meta.new(@meta_url)
+      meta_content.parse
+      # update @meta
+      @meta = meta_content
+    end
+
+    # Download the gz archive of the feed.
+    # @return [Binary] the gz archive.
+    def gz
+      download_file(@gz_url)
+    end
+
+    # Download the zip archive of the feed.
+    # @return [Binary] the zip archive.
+    def zip
+      download_file(@zip_url)
+    end
+
+    # Download the JSON feed.
+    # @return [JSON] the JSON feed.
+    # @todo to implement
+    def json
+      raise 'Not Implemented'
+    end
+
+    private
+
+    # Download a file.
+    # @param file [String] the URL of the file.
+    # @return [Binary] the file content.
+    def download_file(file)
+      uri = URI(file)
+      return Net::HTTP.get(uri)
+    end
+
+    # Unzip a file
+    # @param zip [Binary] the zip content.
+    # @return [???] the content of the zip.
+    # @todo to implement
+    def unzip(zip)
+      raise 'Not Implemented'
     end
   end
 
+  # Initialize the scraper
   def initialize
     @url = URL
     @feeds = nil
@@ -138,7 +200,7 @@ class NVDFeedScraper
   # @example
   #   s = NVDFeedScraper.new
   #   s.scrap
-  #   metaUrl = s.feeds("CVE-2014").meta
+  #   metaUrl = s.feeds("CVE-2014").meta_url
   #   m = NVDFeedScraper::Meta.new
   #   m.url = metaUrl
   #   m.parse
@@ -186,7 +248,7 @@ class NVDFeedScraper
     #   '33ED52D451692596D644F23742ED42B4E350258B11ACB900F969F148FCE3777B'
     attr_reader :sha256
 
-    # @param url [String, nil] see {Feed#meta}.
+    # @param url [String, nil] see {Feed#meta_url}.
     def initialize(url = nil)
       @url = url
     end
@@ -196,7 +258,7 @@ class NVDFeedScraper
     attr_reader :url
 
     # {Meta} URL setter.
-    # @param url [String] see {Feed#meta}.
+    # @param url [String] see {Feed#meta_url}.
     def url=(url)
       @url = url
       @last_modified_date = @size = @zip_size = @gz_size = @sha256 = nil
@@ -209,7 +271,7 @@ class NVDFeedScraper
     # @overload parse(url)
     #   Set the URL of the meta file of the feed and
     #   parse the meta file from the URL and set the attributes.
-    #   @param url [String] see {Feed.meta}
+    #   @param url [String] see {Feed.meta_url}
     #   @return [Integer] Returns +0+ when there is no error.
     def parse(*arg)
       if arg.empty?
