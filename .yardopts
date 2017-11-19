@@ -1,4 +1,5 @@
---no-private
+--protected
+--private
 -
 README.md
 INSTALL.md
