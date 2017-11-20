@@ -62,7 +62,6 @@ class NVDFeedScraper
     # @param meta_url [String] see {#meta_url}.
     # @param gz_url [String] see {#gz_url}.
     # @param zip_url [String] see {#zip_url}.
-    # @param meta [Meta] see {Meta}.
     def initialize(name, updated, meta_url, gz_url, zip_url)
       @name = name
       @updated = updated
