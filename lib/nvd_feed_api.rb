@@ -3,6 +3,7 @@
 require 'net/https'
 require 'nokogiri'
 require 'nvd_feed_api/version'
+require 'archive/zip'
 
 # The class that parse NVD website to get information.
 # @example Initialize a NVDFeedScraper object, get the feeds and see them:
@@ -83,15 +84,33 @@ class NVDFeedScraper
     end
 
     # Download the gz archive of the feed.
-    # @return [Binary] the gz archive.
-    def gz
-      download_file(@gz_url)
+    # @param destination_path [String] the destination path (may overwrite existing file).
+    #   Need the trailing slash +/+.
+    #   If not provided will use +/tmp/+ (see {#download_file}).
+    # @return [String] the saved gz file path.
+    # @example
+    #   download('~/Downloads/')
+    def download_gz(destination_path = nil)
+      if destination_path.nil?
+        download_file(@gz_url)
+      else
+        download_file(@gz_url, destination_path)
+      end
     end
 
     # Download the zip archive of the feed.
-    # @return [Binary] the zip archive.
-    def zip
-      download_file(@zip_url)
+    # @param destination_path [String] the destination path (may overwrite existing file).
+    #   Need the trailing slash +/+.
+    #   If not provided will use +/tmp/+ (see {#download_file}).
+    # @return [String] the saved zip file path.
+    # @example
+    #   download_zip('~/Downloads/')
+    def download_zip(destination_path = nil)
+      if destination_path.nil?
+        download_file(@zip_url)
+      else
+        download_file(@zip_url, destination_path)
+      end
     end
 
     # Download the JSON feed.
@@ -104,17 +123,27 @@ class NVDFeedScraper
     private
 
     # Download a file.
-    # @param file [String] the URL of the file.
-    # @return [Binary] the file content.
-    def download_file(file)
-      uri = URI(file)
-      return Net::HTTP.get(uri)
+    # @param file_url [String] the URL of the file.
+    # @param destination_path [String] the destination path (may overwrite existing file).
+    # @return [String] the saved file path.
+    # @example
+    #   download_file('https://example.org/example.zip') # => '/tmp/example.zip'
+    def download_file(file_url, destination_path = '/tmp/')
+      uri = URI(file_url)
+      destination_file = destination_path + uri.path.split('/').last
+      res = Net::HTTP.get_response(uri)
+      raise "#{file_url} ended with #{res.code} #{res.message}" unless res.is_a?(Net::HTTPSuccess)
+      open(destination_file, 'wb') do |file|
+        file.write(res.body)
+      end
+      return destination_file
     end
 
     # Unzip a file
     # @param zip [Binary] the zip content.
     # @return [???] the content of the zip.
     # @todo to implement
+    # @see https://github.com/javanthropus/archive-zip
     def unzip(zip)
       raise 'Not Implemented'
     end
