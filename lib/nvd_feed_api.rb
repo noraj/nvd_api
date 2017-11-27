@@ -4,6 +4,7 @@ require 'net/https'
 require 'nokogiri'
 require 'nvd_feed_api/version'
 require 'archive/zip'
+require 'json'
 
 # The class that parse NVD website to get information.
 # @example Initialize a NVDFeedScraper object, get the feeds and see them:
@@ -57,6 +58,17 @@ class NVDFeedScraper
     #   f.meta # => #<NVDFeedScraper::Meta:0x00555b53027570 ... >
     attr_reader :meta
 
+    # @return [Hash] the Ruby Hash of the JSON feed.
+    # @note Return nil if not previously loaded by {Feed#json_pull}.
+    # @example
+    #   s = NVDFeedScraper.new
+    #   s.scrap
+    #   f = s.feeds("CVE-2014")
+    #   f.json # => nil
+    #   f.json_pull
+    #   f.json # => JSON Ruby Hash
+    attr_reader :json
+
     # A new instance of Feed.
     # @param name [String] see {#name}.
     # @param updated [String] see {#updated}.
@@ -69,11 +81,12 @@ class NVDFeedScraper
       @meta_url = meta_url
       @gz_url = gz_url
       @zip_url = zip_url
-      # do not pull meta automatically for speed and memory footprint
+      # do not pull meta and json automatically for speed and memory footprint
       @meta = nil
+      @json = nil
     end
 
-    # Create or update the {Meta} object.
+    # Create or update the {Meta} object (fill the attribute).
     # @return [Meta] the updated {Meta} object of the feed.
     # @see #meta
     def meta_pull
@@ -113,11 +126,21 @@ class NVDFeedScraper
       end
     end
 
-    # Download the JSON feed.
-    # @return [JSON] the JSON feed.
-    # @todo to implement
-    def json
-      raise 'Not Implemented'
+    # Download the JSON feed and fill the attribute.
+    # @param destination_path [String] the destination path (may overwrite existing file).
+    # @return [Hash] the Ruby Hash of the JSON feed.
+    # @note Will downlaod sand save the zip of the JSON file, unzip and save it. *This massively consume memory, even for one feed*.
+    # @todo Need refactoring with lazy loading.
+    def json_pull(destination_path = '/tmp/')
+      zip_path = download_zip(destination_path)
+      destination_path += '/' unless destination_path[-1] == '/'
+      Archive::Zip.open(zip_path) do |z|
+        z.extract(destination_path, flatten: true)
+      end
+      jsonfile_path = zip_path.chomp('.zip')
+      File.open(jsonfile_path) do |f|
+        @json = JSON.load(f)
+      end
     end
 
     private
@@ -130,22 +153,18 @@ class NVDFeedScraper
     #   download_file('https://example.org/example.zip') # => '/tmp/example.zip'
     def download_file(file_url, destination_path = '/tmp/')
       uri = URI(file_url)
-      destination_file = destination_path + uri.path.split('/').last
+      filename = uri.path.split('/').last
+      destination_file = if destination_path[-1] == '/'
+                           destination_path + filename
+                         else
+                           destination_path + '/' + filename
+                         end
       res = Net::HTTP.get_response(uri)
       raise "#{file_url} ended with #{res.code} #{res.message}" unless res.is_a?(Net::HTTPSuccess)
       open(destination_file, 'wb') do |file|
         file.write(res.body)
       end
       return destination_file
-    end
-
-    # Unzip a file
-    # @param zip [Binary] the zip content.
-    # @return [???] the content of the zip.
-    # @todo to implement
-    # @see https://github.com/javanthropus/archive-zip
-    def unzip(zip)
-      raise 'Not Implemented'
     end
   end
 
