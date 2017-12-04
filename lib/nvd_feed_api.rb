@@ -5,6 +5,7 @@ require 'nokogiri'
 require 'nvd_feed_api/version'
 require 'archive/zip'
 require 'json'
+require 'oj'
 
 # The class that parse NVD website to get information.
 # @example Initialize a NVDFeedScraper object, get the feeds and see them:
@@ -58,16 +59,16 @@ class NVDFeedScraper
     #   f.meta # => #<NVDFeedScraper::Meta:0x00555b53027570 ... >
     attr_reader :meta
 
-    # @return [Hash] the Ruby Hash of the JSON feed.
+    # @return [String] the path of the saved JSON file.
     # @note Return nil if not previously loaded by {Feed#json_pull}.
     # @example
     #   s = NVDFeedScraper.new
     #   s.scrap
     #   f = s.feeds("CVE-2014")
-    #   f.json # => nil
+    #   f.json_file # => nil
     #   f.json_pull
-    #   f.json # => JSON Ruby Hash
-    attr_reader :json
+    #   f.json_file # => "/tmp/nvdcve-1.0-2014.json"
+    attr_reader :json_file
 
     # A new instance of Feed.
     # @param name [String] see {#name}.
@@ -83,7 +84,7 @@ class NVDFeedScraper
       @zip_url = zip_url
       # do not pull meta and json automatically for speed and memory footprint
       @meta = nil
-      @json = nil
+      @json_file = nil
     end
 
     # Create or update the {Meta} object (fill the attribute).
@@ -128,19 +129,65 @@ class NVDFeedScraper
 
     # Download the JSON feed and fill the attribute.
     # @param destination_path [String] the destination path (may overwrite existing file).
-    # @return [Hash] the Ruby Hash of the JSON feed.
-    # @note Will downlaod sand save the zip of the JSON file, unzip and save it. *This massively consume memory, even for one feed*.
-    # @todo Need refactoring with lazy loading.
+    # @return [String] the path of teh saved JSON file.
+    # @note Will downlaod sand save the zip of the JSON file, unzip and save it. *This massively consume time*.
+    # @see #json
     def json_pull(destination_path = '/tmp/')
       zip_path = download_zip(destination_path)
       destination_path += '/' unless destination_path[-1] == '/'
       Archive::Zip.open(zip_path) do |z|
         z.extract(destination_path, flatten: true)
       end
-      jsonfile_path = zip_path.chomp('.zip')
-      File.open(jsonfile_path) do |f|
-        @json = JSON.load(f)
+      return @json_file = zip_path.chomp('.zip')
+    end
+
+    # Search for CVE in the feed.
+    # @overload cve(cve)
+    #   One CVE.
+    #   @param cve [String] CVE ID, case insensitive.
+    #   @return [Hash] a Ruby Hash corresponding to the CVE.
+    # @overload cve(cve, *)
+    #   Multiple CVEs.
+    #   @param cve [String] CVE ID, case insensitive.
+    #   @param * [String] As many CVE ID as you want.
+    #   @return [Array] an Array of CVE, each CVE is a Ruby Hash.
+    # @note {#json_pull} is needed before using this method. Remember you're searching only in the current feed.
+    # @todo implement a CVE Class instead of returning a Hash.
+    # @see https://scap.nist.gov/schema/nvd/feed/0.1/nvd_cve_feed_json_0.1_beta.schema
+    # @see https://scap.nist.gov/schema/nvd/feed/0.1/CVE_JSON_4.0_min.schema
+    # @example
+    #   s = NVDFeedScraper.new
+    #   s.scrap
+    #   f = s.feeds("CVE-2014")
+    #   f.json_pull
+    #   f.cve("CVE-2014-0002", "cve-2014-0001")
+    def cve(*arg_cve)
+      raise 'json_file is nil, it needs to be populated with json_pull' if @json_file.nil?
+      raise "json_file doesn't exist" unless File.file?(@json_file)
+      return_value = nil
+      raise ArgumentError 'no argument provided, 1 or more expected' if arg_cve.empty?
+      if arg_cve.length == 1
+        raise TypeError 'the provided argument is not a String' unless arg_cve[0].is_a?(String)
+        raise ArgumentError '' unless /^CVE-[0-9]{4}-[0-9]{4,}$/.match?(arg_cve[0])
+        doc = Oj::Doc.open(File.read(@json_file))
+        doc_size = doc.size
+        (1..doc_size).each do |i|
+          if arg_cve[0].upcase == doc.fetch("/CVE_Items/#{i}/cve/CVE_data_meta/ID")
+            return_value = doc.fetch("/CVE_Items/#{i}")
+            break
+          end
+        end
+        doc.close
+      else
+        return_value = []
+        arg_cve.each do |cve|
+          res = cve(cve)
+          puts "#{cve} not found" if res.nil?
+          return_value.push(res)
+        end
+        return return_value
       end
+      return return_value
     end
 
     private
@@ -200,15 +247,17 @@ class NVDFeedScraper
   #   One feed and its attributes.
   #   @param feed [String] Feed name as written on NVD website. Names can be obtains with {#available_feeds}.
   #   @return [Feed] Attributes of one feed. It's a {Feed} object.
-  # @overload feeds(feed, feed)
+  # @overload feeds(feed, *)
   #   List of feeds and their attributes.
   #   @param feed [String] Feed name as written on NVD website. Names can be obtains with {#available_feeds}.
+  #   @param * [String] As many feeds as you want.
   #   @return [Array<Feed>] Attributes of a list of feeds. It's an array of {Feed} object.
   # @example
   #   scraper.feeds => all feeds
   #   scraper.feeds('CVE-2010') => return only CVE-2010 feed
   #   scraper.feeds("CVE-2005", "CVE-2002") => return CVE-2005 and CVE-2002 feeds
   #   scraper.feeds("wrong") => empty array
+  # @see https://nvd.nist.gov/vuln/data-feeds
   def feeds(*arg_feeds)
     return_value = nil
     if arg_feeds.empty?

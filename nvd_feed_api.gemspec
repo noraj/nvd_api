@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency('archive-zip', '~> 0.10')
   s.add_dependency('nokogiri', '~> 1.8')
+  s.add_dependency('oj', '~> 3.3')
 
   s.add_development_dependency('github-markup', '~> 1.6') # for GMF support in YARD
   s.add_development_dependency('minitest', '~> 5.10')
