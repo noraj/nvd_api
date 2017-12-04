@@ -4,7 +4,6 @@ require 'net/https'
 require 'nokogiri'
 require 'nvd_feed_api/version'
 require 'archive/zip'
-require 'json'
 require 'oj'
 
 # The class that parse NVD website to get information.
@@ -131,7 +130,7 @@ class NVDFeedScraper
     # @param destination_path [String] the destination path (may overwrite existing file).
     # @return [String] the path of teh saved JSON file.
     # @note Will downlaod sand save the zip of the JSON file, unzip and save it. *This massively consume time*.
-    # @see #json
+    # @see #json_file
     def json_pull(destination_path = '/tmp/')
       zip_path = download_zip(destination_path)
       destination_path += '/' unless destination_path[-1] == '/'
