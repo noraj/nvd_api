@@ -167,7 +167,7 @@ class NVDFeedScraper
       raise ArgumentError 'no argument provided, 1 or more expected' if arg_cve.empty?
       if arg_cve.length == 1
         raise TypeError 'the provided argument is not a String' unless arg_cve[0].is_a?(String)
-        raise ArgumentError '' unless /^CVE-[0-9]{4}-[0-9]{4,}$/.match?(arg_cve[0])
+        raise ArgumentError 'bad CVE name' unless /^CVE-[0-9]{4}-[0-9]{4,}$/.match?(arg_cve[0])
         doc = Oj::Doc.open(File.read(@json_file))
         doc_size = doc.size
         (1..doc_size).each do |i|
@@ -221,6 +221,7 @@ class NVDFeedScraper
   end
 
   # Scrap / parse the website to get the feeds and fill the {#feeds} attribute.
+  # @note {#scrap} need to be called only once but you can be called more to update if the NVD feed page changed.
   # @return [Integer] Returns +0+ when there is no error.
   def scrap
     uri = URI(@url)
@@ -286,6 +287,57 @@ class NVDFeedScraper
       feed_names.push(feed.name)
     end
     feed_names
+  end
+
+  # Search for CVE in all year feeds.
+  # @overload cve(cve)
+  #   One CVE.
+  #   @param cve [String] CVE ID, case insensitive.
+  #   @return [Hash] a Ruby Hash corresponding to the CVE.
+  # @overload cve(cve, *)
+  #   Multiple CVEs.
+  #   @param cve [String] CVE ID, case insensitive.
+  #   @param * [String] As many CVE ID as you want.
+  #   @return [Array] an Array of CVE, each CVE is a Ruby Hash.
+  # @todo implement a CVE Class instead of returning a Hash.
+  # @Note {#scrap} is needed before using this method.
+  # @see https://scap.nist.gov/schema/nvd/feed/0.1/nvd_cve_feed_json_0.1_beta.schema
+  # @see https://scap.nist.gov/schema/nvd/feed/0.1/CVE_JSON_4.0_min.schema
+  # @example
+  #   s = NVDFeedScraper.new
+  #   s.scrap
+  #   s.cve("CVE-2014-0002", "cve-2014-0001")
+  def cve(*arg_cve)
+    return_value = nil
+    raise ArgumentError 'no argument provided, 1 or more expected' if arg_cve.empty?
+    if arg_cve.length == 1
+      raise TypeError 'the provided argument is not a String' unless arg_cve[0].is_a?(String)
+      raise ArgumentError 'bad CVE name' unless /^CVE-[0-9]{4}-[0-9]{4,}$/.match?(arg_cve[0])
+      year = /^CVE-([0-9]{4})-[0-9]{4,}$/.match(arg_cve[0]).captures[0]
+      matched_feed = nil
+      feeds = available_feeds
+      feeds.delete('CVE-Modified')
+      feeds.delete('CVE-Recent')
+      feeds.each do |feed|
+        if /#{year}/.match?(feed)
+          matched_feed = feed
+          break
+        end
+      end
+      raise 'Bad CVE year' if matched_feed.nil?
+      f = self.feeds(matched_feed)
+      f.json_pull
+      return_value = f.cve(arg_cve[0])
+    else
+      return_value = []
+      arg_cve.each do |cve|
+        res = cve(cve)
+        puts "#{cve} not found" if res.nil?
+        return_value.push(res)
+      end
+      return return_value
+    end
+    return return_value
   end
 
   # Manage the meta file from a feed.
