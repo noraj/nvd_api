@@ -5,6 +5,7 @@ require 'nokogiri'
 require 'nvd_feed_api/version'
 require 'archive/zip'
 require 'oj'
+require 'digest'
 
 # The class that parse NVD website to get information.
 # @example Initialize a NVDFeedScraper object, get the feeds and see them:
@@ -48,7 +49,9 @@ class NVDFeedScraper
     attr_reader :zip_url
 
     # @return [Meta] the {Meta} object of the feed.
-    # @note Return nil if not previously loaded by {Feed#meta_pull}.
+    # @note
+    #   Return nil if not previously loaded by {#meta_pull}.
+    #   Note that {#json_pull} also calls {#meta_pull}.
     # @example
     #   s = NVDFeedScraper.new
     #   s.scrap
@@ -59,7 +62,7 @@ class NVDFeedScraper
     attr_reader :meta
 
     # @return [String] the path of the saved JSON file.
-    # @note Return nil if not previously loaded by {Feed#json_pull}.
+    # @note Return nil if not previously loaded by {#json_pull}.
     # @example
     #   s = NVDFeedScraper.new
     #   s.scrap
@@ -129,7 +132,7 @@ class NVDFeedScraper
     # Download the JSON feed and fill the attribute.
     # @param destination_path [String] the destination path (may overwrite existing file).
     # @return [String] the path of teh saved JSON file.
-    # @note Will downlaod sand save the zip of the JSON file, unzip and save it. *This massively consume time*.
+    # @note Will downlaod and save the zip of the JSON file, unzip and save it. This massively consume time.
     # @see #json_file
     def json_pull(destination_path = '/tmp/')
       zip_path = download_zip(destination_path)
@@ -137,7 +140,12 @@ class NVDFeedScraper
       Archive::Zip.open(zip_path) do |z|
         z.extract(destination_path, flatten: true)
       end
-      return @json_file = zip_path.chomp('.zip')
+      @json_file = zip_path.chomp('.zip')
+      # Verify hash integrity
+      computed_h = Digest::SHA256.file(@json_file)
+      meta_pull
+      raise 'File corruption' unless meta.sha256.casecmp(computed_h.hexdigest).zero?
+      return @json_file
     end
 
     # Search for CVE in the feed.
