@@ -175,7 +175,7 @@ class NVDFeedScraper
       raise ArgumentError 'no argument provided, 1 or more expected' if arg_cve.empty?
       if arg_cve.length == 1
         raise TypeError 'the provided argument is not a String' unless arg_cve[0].is_a?(String)
-        raise ArgumentError 'bad CVE name' unless /^CVE-[0-9]{4}-[0-9]{4,}$/.match?(arg_cve[0])
+        raise ArgumentError 'bad CVE name' unless /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(arg_cve[0])
         doc = Oj::Doc.open(File.read(@json_file))
         doc_size = doc.size
         (1..doc_size).each do |i|
@@ -264,9 +264,9 @@ class NVDFeedScraper
   #   scraper.feeds => all feeds
   #   scraper.feeds('CVE-2010') => return only CVE-2010 feed
   #   scraper.feeds("CVE-2005", "CVE-2002") => return CVE-2005 and CVE-2002 feeds
-  #   scraper.feeds("wrong") => empty array
   # @see https://nvd.nist.gov/vuln/data-feeds
   def feeds(*arg_feeds)
+    raise 'call scrap method before using feeds method' if @feeds.nil?
     return_value = nil
     if arg_feeds.empty?
       return_value = @feeds
@@ -290,6 +290,7 @@ class NVDFeedScraper
   # @example
   #   scraper.available_feeds => ["CVE-Modified", "CVE-Recent", "CVE-2017", "CVE-2016", "CVE-2015", "CVE-2014", "CVE-2013", "CVE-2012", "CVE-2011", "CVE-2010", "CVE-2009", "CVE-2008", "CVE-2007", "CVE-2006", "CVE-2005", "CVE-2004", "CVE-2003", "CVE-2002"]
   def available_feeds
+    raise 'call scrap method before using available_feeds method' if @feeds.nil?
     feed_names = []
     @feeds.each do |feed| # feed is an objet
       feed_names.push(feed.name)
@@ -320,20 +321,20 @@ class NVDFeedScraper
     raise ArgumentError 'no argument provided, 1 or more expected' if arg_cve.empty?
     if arg_cve.length == 1
       raise TypeError 'the provided argument is not a String' unless arg_cve[0].is_a?(String)
-      raise ArgumentError 'bad CVE name' unless /^CVE-[0-9]{4}-[0-9]{4,}$/.match?(arg_cve[0])
-      year = /^CVE-([0-9]{4})-[0-9]{4,}$/.match(arg_cve[0]).captures[0]
+      raise ArgumentError 'bad CVE name' unless /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(arg_cve[0])
+      year = /^CVE-([0-9]{4})-[0-9]{4,}$/i.match(arg_cve[0]).captures[0]
       matched_feed = nil
-      feeds = available_feeds
-      feeds.delete('CVE-Modified')
-      feeds.delete('CVE-Recent')
-      feeds.each do |feed|
+      feed_names = available_feeds
+      feed_names.delete('CVE-Modified')
+      feed_names.delete('CVE-Recent')
+      feed_names.each do |feed|
         if /#{year}/.match?(feed)
           matched_feed = feed
           break
         end
       end
-      raise 'Bad CVE year' if matched_feed.nil?
-      f = self.feeds(matched_feed)
+      raise 'bad CVE year' if matched_feed.nil?
+      f = feeds(matched_feed)
       f.json_pull
       return_value = f.cve(arg_cve[0])
     else
