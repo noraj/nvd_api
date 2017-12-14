@@ -237,7 +237,7 @@ class NVDFeedScraper
 
     doc = Nokogiri::HTML(html)
     @feeds = []
-    doc.css('h3#JSON_FEED ~ div.row:first-of-type table.xml-feed-table > tbody > tr[data-testid$=desc]').each do |tr|
+    doc.css('h3#JSON_FEED ~ div.row:first-of-type table.xml-feed-table > tbody > tr[data-testid*=desc]').each do |tr|
       name = tr.css('td')[0].text
       updated = tr.css('td')[1].text
       meta = tr.css('td')[2].css('> a').attr('href').value
