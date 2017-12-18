@@ -199,6 +199,51 @@ class NVDFeedScraper
 
     private
 
+    # @param arg_name [String] the new name of the feed.
+    # @return [String] the new name of the feed.
+    # @example
+    #   'CVE-2007'
+    def name=(arg_name)
+      raise ArgumentError 'name is not a string' unless arg_name.is_a(String)
+      @name = arg_name
+    end
+
+    # @param arg_updated [String] the last update date of the feed information on the NVD website.
+    # @return [String] the new date.
+    # @example
+    #   '10/19/2017 3:27:02 AM -04:00'
+    def updated=(arg_updated)
+      raise ArgumentError 'updated date is not a string' unless arg_updated.is_a(String)
+      @updated = arg_updated
+    end
+
+    # @param arg_meta_url [String] the new URL of the metadata file of the feed.
+    # @return [String] the new URL of the metadata file of the feed.
+    # @example
+    #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.meta'
+    def meta_url=(arg_meta_url)
+      raise ArgumentError 'meta_url is not a string' unless arg_meta_url.is_a(String)
+      @meta_url = arg_meta_url
+    end
+
+    # @param arg_gz_url [String] the new URL of the gz archive of the feed.
+    # @return [String] the new URL of the gz archive of the feed.
+    # @example
+    #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.json.gz'
+    def gz_url=(arg_gz_url)
+      raise ArgumentError 'gz_url is not a string' unless arg_gz_url.is_a(String)
+      @gz_url = arg_gz_url
+    end
+
+    # @param arg_zip_url [String] the new URL of the zip archive of the feed.
+    # @return [String] the new URL of the zip archive of the feed.
+    # @example
+    #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.json.zip'
+    def zip_url=(arg_zip_url)
+      raise ArgumentError 'zip_url is not a string' unless arg_zip_url.is_a(String)
+      @zip_url = arg_zip_url
+    end
+
     # Download a file.
     # @param file_url [String] the URL of the file.
     # @param destination_path [String] the destination path (may overwrite existing file).
@@ -309,7 +354,7 @@ class NVDFeedScraper
   #   @param * [String] As many CVE ID as you want.
   #   @return [Array] an Array of CVE, each CVE is a Ruby Hash.
   # @todo implement a CVE Class instead of returning a Hash.
-  # @Note {#scrap} is needed before using this method.
+  # @note {#scrap} is needed before using this method.
   # @see https://scap.nist.gov/schema/nvd/feed/0.1/nvd_cve_feed_json_0.1_beta.schema
   # @see https://scap.nist.gov/schema/nvd/feed/0.1/CVE_JSON_4.0_min.schema
   # @example
@@ -344,7 +389,53 @@ class NVDFeedScraper
         puts "#{cve} not found" if res.nil?
         return_value.push(res)
       end
-      return return_value
+    end
+    return return_value
+  end
+
+  # Update the feeds
+  # @overload update_feeds(feed)
+  #   One feed
+  #   @param feed [Feed] feed object to update.
+  #   @return [Boolean] +true+ if the feed was updated, +false+ if it wasn't
+  # @overload update_feeds(feed, *)
+  #   Multiple feeds
+  #   @param feed [Feed] feed object to update.
+  #   @param * [Feed] As many feed objects as you want.
+  #   @return [Array<Boolean>] +true+ if the feed was updated, +false+ if it wasn't
+  # @example
+  #   s = NVDFeedScraper.new
+  #   s.scrap
+  #   f2015, f2017 = s.feeds("CVE-2015", "CVE-2017")
+  #   s.update_feeds(f2015, f2017) # => [false, false]
+  def update_feeds(*arg_feed)
+    return_value = false
+    raise ArgumentError 'no argument provided, 1 or more expected' if arg_feed.empty?
+    scrap
+    if arg_feed.length == 1
+      raise TypeError 'the provided argument is not a Feed' unless arg_feed[0].is_a?(Feed)
+      raise ArgumentError 'bad CVE name' unless /^CVE-[0-9]{4}$/.match?(arg_feed[0].name) # case sensitive as it comes from NVD feeds
+      new_feed = feeds(arg_feed[0].name)
+      # update attributes
+      if arg_feed[0].updated != new_feed.updated
+        arg_feed[0].name = new_feed.name
+        arg_feed[0].updated = new_feed.updated
+        arg_feed[0].meta_url = new_feed.meta_url
+        arg_feed[0].gz_url = new_feed.gz_url
+        arg_feed[0].zip_url = new_feed.zip_url
+        # update if @meta was set
+        arg_feed[0].meta_pull unless feed.meta.nil?
+        # update @json_file was set
+        arg_feed[0].json_pull unless feed.json_file.nil?
+        return_value = true
+      end
+    else
+      return_value = []
+      arg_feed.each do |f|
+        res = update_feeds(f)
+        puts "#{f} not found" if res.nil?
+        return_value.push(res)
+      end
     end
     return return_value
   end

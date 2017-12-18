@@ -8,6 +8,9 @@ Lint/UselessAssignment:
 Metrics/AbcSize:
   Enabled: false
 
+Metrics/ClassLength:
+  Enabled: false
+
 Metrics/CyclomaticComplexity:
   Max: 10
 
