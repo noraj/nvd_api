@@ -100,51 +100,55 @@ class NVDFeedScraper
     end
 
     # Download the gz archive of the feed.
-    # @param destination_path [String] the destination path (may overwrite existing file).
-    #   Need the trailing slash +/+.
-    #   If not provided will use +/tmp/+ (see {#download_file}).
+    # @param opts [Hash] see {#download_file}.
     # @return [String] the saved gz file path.
     # @example
     #   download('~/Downloads/')
-    def download_gz(destination_path = nil)
-      if destination_path.nil?
-        download_file(@gz_url)
-      else
-        download_file(@gz_url, destination_path)
-      end
+    def download_gz(opts = {})
+      download_file(@gz_url, opts)
     end
 
     # Download the zip archive of the feed.
-    # @param destination_path [String] the destination path (may overwrite existing file).
-    #   Need the trailing slash +/+.
-    #   If not provided will use +/tmp/+ (see {#download_file}).
+    # @param opts [Hash] see {#download_file}.
     # @return [String] the saved zip file path.
     # @example
     #   download_zip('~/Downloads/')
-    def download_zip(destination_path = nil)
-      if destination_path.nil?
-        download_file(@zip_url)
-      else
-        download_file(@zip_url, destination_path)
-      end
+    def download_zip(opts = {})
+      download_file(@zip_url, opts)
     end
 
     # Download the JSON feed and fill the attribute.
-    # @param destination_path [String] the destination path (may overwrite existing file).
-    # @return [String] the path of teh saved JSON file.
+    # @param opts [Hash] see {#download_file}.
+    # @return [String] the path of the saved JSON file.
     # @note Will downlaod and save the zip of the JSON file, unzip and save it. This massively consume time.
     # @see #json_file
-    def json_pull(destination_path = '/tmp/')
-      zip_path = download_zip(destination_path)
+    def json_pull(opts = {})
+      opts[:destination_path] ||= '/tmp/'
+
+      skip_download = false
+      destination_path = opts[:destination_path]
       destination_path += '/' unless destination_path[-1] == '/'
-      Archive::Zip.open(zip_path) do |z|
-        z.extract(destination_path, flatten: true)
-      end
-      @json_file = zip_path.chomp('.zip')
-      # Verify hash integrity
-      computed_h = Digest::SHA256.file(@json_file)
+      filename = URI(@zip_url).path.split('/').last.chomp('.zip')
+      # do not use @json_file for destination_file because of offline loading
+      destination_file = destination_path + filename
       meta_pull
-      raise 'File corruption' unless meta.sha256.casecmp(computed_h.hexdigest).zero?
+      if File.file?(destination_file)
+        # Verify hash to see if it is the latest
+        computed_h = Digest::SHA256.file(destination_file)
+        skip_download = true if meta.sha256.casecmp(computed_h.hexdigest).zero?
+      end
+      if skip_download
+        @json_file = destination_file
+      else
+        zip_path = download_zip(opts)
+        Archive::Zip.open(zip_path) do |z|
+          z.extract(destination_path, flatten: true)
+        end
+        @json_file = zip_path.chomp('.zip')
+        # Verify hash integrity
+        computed_h = Digest::SHA256.file(@json_file)
+        raise 'File corruption' unless meta.sha256.casecmp(computed_h.hexdigest).zero?
+      end
       return @json_file
     end
 
@@ -246,22 +250,39 @@ class NVDFeedScraper
 
     # Download a file.
     # @param file_url [String] the URL of the file.
-    # @param destination_path [String] the destination path (may overwrite existing file).
+    # @param opts [Hash] the optional downlaod parameters.
+    # @option opts [String] :destination_path the destination path (may
+    #     overwrite existing file). Default is +/tmp/+.
+    # @option opts [String] :sha256 the SHA256 hash to check, if the file
+    #     already exist and the hash matches then the download will be skipped.
     # @return [String] the saved file path.
     # @example
     #   download_file('https://example.org/example.zip') # => '/tmp/example.zip'
-    def download_file(file_url, destination_path = '/tmp/')
+    #   download_file('https://example.org/example.zip', destination_path: '/srv/save/') # => '/srv/save/example.zip'
+    #   download_file('https://example.org/example.zip', {destination_path: '/srv/save/', sha256: '70d6ea136d5036b6ce771921a949357216866c6442f44cea8497f0528c54642d'}) # => '/srv/save/example.zip'
+    def download_file(file_url, opts = {})
+      opts[:destination_path] ||= '/tmp/'
+      opts[:sha256] ||= nil
+
+      destination_path = opts[:destination_path]
+      destination_path += '/' unless destination_path[-1] == '/'
+      skip_download = false
       uri = URI(file_url)
       filename = uri.path.split('/').last
-      destination_file = if destination_path[-1] == '/'
-                           destination_path + filename
-                         else
-                           destination_path + '/' + filename
-                         end
-      res = Net::HTTP.get_response(uri)
-      raise "#{file_url} ended with #{res.code} #{res.message}" unless res.is_a?(Net::HTTPSuccess)
-      open(destination_file, 'wb') do |file|
-        file.write(res.body)
+      destination_file = destination_path + filename
+      unless opts[:sha256].nil?
+        if File.file?(destination_file)
+          # Verify hash to see if it is the latest
+          computed_h = Digest::SHA256.file(destination_file)
+          skip_download = true if opts[:sha256].casecmp(computed_h.hexdigest).zero?
+        end
+      end
+      unless skip_download
+        res = Net::HTTP.get_response(uri)
+        raise "#{file_url} ended with #{res.code} #{res.message}" unless res.is_a?(Net::HTTPSuccess)
+        open(destination_file, 'wb') do |file|
+          file.write(res.body)
+        end
       end
       return destination_file
     end
@@ -425,7 +446,7 @@ class NVDFeedScraper
         arg_feed[0].zip_url = new_feed.zip_url
         # update if @meta was set
         arg_feed[0].meta_pull unless feed.meta.nil?
-        # update @json_file was set
+        # update if @json_file was set
         arg_feed[0].json_pull unless feed.json_file.nil?
         return_value = true
       end
