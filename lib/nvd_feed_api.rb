@@ -6,6 +6,10 @@ require 'nvd_feed_api/version'
 require 'archive/zip'
 require 'oj'
 require 'digest'
+require 'configatron'
+
+# Globally readable / writable config
+configatron.NVDFeedScraper.feed.default_storage_location = '/tmp/'
 
 # The class that parse NVD website to get information.
 # @example Initialize a NVDFeedScraper object, get the feeds and see them:
@@ -119,11 +123,11 @@ class NVDFeedScraper
 
     # Download the JSON feed and fill the attribute.
     # @param opts [Hash] see {#download_file}.
-    # @return [String] the path of the saved JSON file.
+    # @return [String] the path of the saved JSON file. Default use {file:pages/CONFIGURATION.md Configuration}.
     # @note Will downlaod and save the zip of the JSON file, unzip and save it. This massively consume time.
     # @see #json_file
     def json_pull(opts = {})
-      opts[:destination_path] ||= '/tmp/'
+      opts[:destination_path] ||= configatron.NVDFeedScraper.feed.default_storage_location
 
       skip_download = false
       destination_path = opts[:destination_path]
@@ -218,7 +222,7 @@ class NVDFeedScraper
     end
 
     # Return a list with the name of all available CVEs in the feed.
-    #   Can only be called after {#json_pull}.
+    # Can only be called after {#json_pull}.
     # @return [Array<String>] List with the name of all available CVEs. May return thousands CVEs.
     def available_cves
       raise 'json_file is nil, it needs to be populated with json_pull' if @json_file.nil?
@@ -286,16 +290,17 @@ class NVDFeedScraper
     # @param file_url [String] the URL of the file.
     # @param opts [Hash] the optional downlaod parameters.
     # @option opts [String] :destination_path the destination path (may
-    #     overwrite existing file). Default is +/tmp/+.
+    #   overwrite existing file).
+    #   Default use {file:pages/CONFIGURATION.md Configuration}.
     # @option opts [String] :sha256 the SHA256 hash to check, if the file
-    #     already exist and the hash matches then the download will be skipped.
+    #   already exist and the hash matches then the download will be skipped.
     # @return [String] the saved file path.
     # @example
     #   download_file('https://example.org/example.zip') # => '/tmp/example.zip'
     #   download_file('https://example.org/example.zip', destination_path: '/srv/save/') # => '/srv/save/example.zip'
     #   download_file('https://example.org/example.zip', {destination_path: '/srv/save/', sha256: '70d6ea136d5036b6ce771921a949357216866c6442f44cea8497f0528c54642d'}) # => '/srv/save/example.zip'
     def download_file(file_url, opts = {})
-      opts[:destination_path] ||= '/tmp/'
+      opts[:destination_path] ||= configatron.NVDFeedScraper.feed.default_storage_location
       opts[:sha256] ||= nil
 
       destination_path = opts[:destination_path]
@@ -330,7 +335,7 @@ class NVDFeedScraper
 
   # Scrap / parse the website to get the feeds and fill the {#feeds} attribute.
   # @note {#scrap} need to be called only once but you can be called more to update if the NVD feed page changed.
-  # @return [Integer] Returns +0+ when there is no error.
+  # @return [Integer] +0+ when there is no error.
   def scrap
     uri = URI(@url)
     html = Net::HTTP.get(uri)
@@ -496,7 +501,7 @@ class NVDFeedScraper
   end
 
   # Return a list with the name of all available CVEs in the feed.
-  #   Can only be called after {#json_pull}.
+  # Can only be called after {#scrap}.
   # @return [Array<String>] List with the name of all available CVEs. May return tens thousands CVEs.
   def available_cves
     cve_names = []

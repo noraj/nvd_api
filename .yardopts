@@ -2,6 +2,7 @@
 --private
 -
 README.md
-INSTALL.md
-FEATURES.md
 LICENSE.txt
+pages/INSTALL.md
+pages/FEATURES.md
+pages/CONFIGURATION.md
