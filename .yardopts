@@ -1,7 +1,8 @@
 --protected
 --private
+--output-dir doc/
 -
-README.md
+--main README.md
 LICENSE.txt
 pages/INSTALL.md
 pages/FEATURES.md
