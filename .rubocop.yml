@@ -12,7 +12,7 @@ Metrics/ClassLength:
   Enabled: false
 
 Metrics/CyclomaticComplexity:
-  Max: 10
+  Max: 15
 
 Metrics/LineLength:
   Enabled: false

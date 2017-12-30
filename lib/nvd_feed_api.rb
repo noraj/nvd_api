@@ -147,7 +147,7 @@ class NVDFeedScraper
         @json_file = zip_path.chomp('.zip')
         # Verify hash integrity
         computed_h = Digest::SHA256.file(@json_file)
-        raise 'File corruption' unless meta.sha256.casecmp(computed_h.hexdigest).zero?
+        raise "File corruption: #{@json_file}" unless meta.sha256.casecmp(computed_h.hexdigest).zero?
       end
       return @json_file
     end
@@ -161,7 +161,7 @@ class NVDFeedScraper
     #   Multiple CVEs.
     #   @param cve [String] CVE ID, case insensitive.
     #   @param * [String] As many CVE ID as you want.
-    #   @return [Array] an Array of CVE, each CVE is a Ruby Hash.
+    #   @return [Array] an Array of CVE, each CVE is a Ruby Hash. May not be in the same order as provided.
     # @note {#json_pull} is needed before using this method. Remember you're searching only in the current feed.
     # @todo implement a CVE Class instead of returning a Hash.
     # @see https://scap.nist.gov/schema/nvd/feed/0.1/nvd_cve_feed_json_0.1_beta.schema
@@ -174,14 +174,15 @@ class NVDFeedScraper
     #   f.cve("CVE-2014-0002", "cve-2014-0001")
     def cve(*arg_cve)
       raise 'json_file is nil, it needs to be populated with json_pull' if @json_file.nil?
-      raise "json_file doesn't exist" unless File.file?(@json_file)
+      raise "json_file (#{@json_file}) doesn't exist" unless File.file?(@json_file)
       return_value = nil
-      raise ArgumentError 'no argument provided, 1 or more expected' if arg_cve.empty?
+      raise 'no argument provided, 1 or more expected' if arg_cve.empty?
       if arg_cve.length == 1
-        raise TypeError 'the provided argument is not a String' unless arg_cve[0].is_a?(String)
-        raise ArgumentError 'bad CVE name' unless /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(arg_cve[0])
+        raise TypeError "the provided argument (#{arg_cve[0]}) is not a String" unless arg_cve[0].is_a?(String)
+        raise "bad CVE name (#{arg_cve[0]})" unless /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(arg_cve[0])
         doc = Oj::Doc.open(File.read(@json_file))
-        doc_size = doc.size
+        # Quicker than doc.fetch('/CVE_Items').size
+        doc_size = doc.fetch('/CVE_data_numberOfCVEs').to_i
         (1..doc_size).each do |i|
           if arg_cve[0].upcase == doc.fetch("/CVE_Items/#{i}/cve/CVE_data_meta/ID")
             return_value = doc.fetch("/CVE_Items/#{i}")
@@ -191,14 +192,47 @@ class NVDFeedScraper
         doc.close
       else
         return_value = []
-        arg_cve.each do |cve|
-          res = cve(cve)
-          puts "#{cve} not found" if res.nil?
-          return_value.push(res)
+        # Sorting CVE can allow us to parse the JSON only 1 time instead of severals
+        # Upcase to be sure include? works
+        cves_to_find = arg_cve.sort.map(&:upcase)
+        raise TypeError 'one of the provided arguments is not a String' unless cves_to_find.all? { |x| x.is_a?(String) }
+        raise 'bad CVE name' unless cves_to_find.all? { |x| /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(x) }
+        doc = Oj::Doc.open(File.read(@json_file))
+        # Quicker than doc.fetch('/CVE_Items').size
+        doc_size = doc.fetch('/CVE_data_numberOfCVEs').to_i
+        (1..doc_size).each do |i|
+          doc.move("/CVE_Items/#{i}")
+          cve_id = doc.fetch('cve/CVE_data_meta/ID')
+          if cves_to_find.include?(cve_id)
+            return_value.push(doc.fetch)
+            cves_to_find.delete(cve_id)
+          elsif cves_to_find.empty?
+            break
+          end
         end
-        return return_value
+        # Because JSON are sorted and that we sorted arguments, we only need
+        # to parse the JSON file one time.
+        raise "#{cves_to_find.join(', ')} are unexisting CVEs" unless cves_to_find.empty?
       end
       return return_value
+    end
+
+    # Return a list with the name of all available CVEs in the feed.
+    #   Can only be called after {#json_pull}.
+    # @return [Array<String>] List with the name of all available CVEs. May return thousands CVEs.
+    def available_cves
+      raise 'json_file is nil, it needs to be populated with json_pull' if @json_file.nil?
+      raise "json_file (#{@json_file}) doesn't exist" unless File.file?(@json_file)
+      doc = Oj::Doc.open(File.read(@json_file))
+      # Quicker than doc.fetch('/CVE_Items').size
+      doc_size = doc.fetch('/CVE_data_numberOfCVEs').to_i
+      cve_names = []
+      (1..doc_size).each do |i|
+        doc.move("/CVE_Items/#{i}")
+        cve_names.push(doc.fetch('cve/CVE_data_meta/ID'))
+      end
+      doc.close
+      return cve_names
     end
 
     private
@@ -208,7 +242,7 @@ class NVDFeedScraper
     # @example
     #   'CVE-2007'
     def name=(arg_name)
-      raise ArgumentError 'name is not a string' unless arg_name.is_a(String)
+      raise TypeError "name (#{arg_name}) is not a string" unless arg_name.is_a(String)
       @name = arg_name
     end
 
@@ -217,7 +251,7 @@ class NVDFeedScraper
     # @example
     #   '10/19/2017 3:27:02 AM -04:00'
     def updated=(arg_updated)
-      raise ArgumentError 'updated date is not a string' unless arg_updated.is_a(String)
+      raise TypeError "updated date (#{arg_updated}) is not a string" unless arg_updated.is_a(String)
       @updated = arg_updated
     end
 
@@ -226,7 +260,7 @@ class NVDFeedScraper
     # @example
     #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.meta'
     def meta_url=(arg_meta_url)
-      raise ArgumentError 'meta_url is not a string' unless arg_meta_url.is_a(String)
+      raise TypeError "meta_url (#{arg_meta_url}) is not a string" unless arg_meta_url.is_a(String)
       @meta_url = arg_meta_url
     end
 
@@ -235,7 +269,7 @@ class NVDFeedScraper
     # @example
     #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.json.gz'
     def gz_url=(arg_gz_url)
-      raise ArgumentError 'gz_url is not a string' unless arg_gz_url.is_a(String)
+      raise TypeError "gz_url (#{arg_gz_url}) is not a string" unless arg_gz_url.is_a(String)
       @gz_url = arg_gz_url
     end
 
@@ -244,7 +278,7 @@ class NVDFeedScraper
     # @example
     #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.json.zip'
     def zip_url=(arg_zip_url)
-      raise ArgumentError 'zip_url is not a string' unless arg_zip_url.is_a(String)
+      raise TypeError "zip_url (#{arg_zip_url}) is not a string" unless arg_zip_url.is_a(String)
       @zip_url = arg_zip_url
     end
 
@@ -384,10 +418,10 @@ class NVDFeedScraper
   #   s.cve("CVE-2014-0002", "cve-2014-0001")
   def cve(*arg_cve)
     return_value = nil
-    raise ArgumentError 'no argument provided, 1 or more expected' if arg_cve.empty?
+    raise 'no argument provided, 1 or more expected' if arg_cve.empty?
     if arg_cve.length == 1
-      raise TypeError 'the provided argument is not a String' unless arg_cve[0].is_a?(String)
-      raise ArgumentError 'bad CVE name' unless /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(arg_cve[0])
+      raise TypeError "the provided argument (#{arg_cve}) is not a String" unless arg_cve[0].is_a?(String)
+      raise 'bad CVE name' unless /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(arg_cve[0])
       year = /^CVE-([0-9]{4})-[0-9]{4,}$/i.match(arg_cve[0]).captures[0]
       matched_feed = nil
       feed_names = available_feeds
@@ -399,7 +433,7 @@ class NVDFeedScraper
           break
         end
       end
-      raise 'bad CVE year' if matched_feed.nil?
+      raise "bad CVE year in #{arg_cve}" if matched_feed.nil?
       f = feeds(matched_feed)
       f.json_pull
       return_value = f.cve(arg_cve[0])
@@ -431,11 +465,11 @@ class NVDFeedScraper
   #   s.update_feeds(f2015, f2017) # => [false, false]
   def update_feeds(*arg_feed)
     return_value = false
-    raise ArgumentError 'no argument provided, 1 or more expected' if arg_feed.empty?
+    raise 'no argument provided, 1 or more expected' if arg_feed.empty?
     scrap
     if arg_feed.length == 1
-      raise TypeError 'the provided argument is not a Feed' unless arg_feed[0].is_a?(Feed)
-      raise ArgumentError 'bad CVE name' unless /^CVE-[0-9]{4}$/.match?(arg_feed[0].name) # case sensitive as it comes from NVD feeds
+      raise TypeError "the provided argument #{arg_feed[0]} is not a Feed" unless arg_feed[0].is_a?(Feed)
+      raise "bad CVE name: #{arg_feed[0].name}" unless /^CVE-[0-9]{4}$/.match?(arg_feed[0].name) # case sensitive as it comes from NVD feeds
       new_feed = feeds(arg_feed[0].name)
       # update attributes
       if arg_feed[0].updated != new_feed.updated
@@ -459,6 +493,23 @@ class NVDFeedScraper
       end
     end
     return return_value
+  end
+
+  # Return a list with the name of all available CVEs in the feed.
+  #   Can only be called after {#json_pull}.
+  # @return [Array<String>] List with the name of all available CVEs. May return tens thousands CVEs.
+  def available_cves
+    cve_names = []
+    feed_names = available_feeds
+    feed_names.delete('CVE-Modified')
+    feed_names.delete('CVE-Recent')
+    feed_names.each do |feed_name|
+      f = feeds(feed_name)
+      f.json_pull
+      # merge removing duplicates
+      cve_names |= f.available_cves
+    end
+    return cve_names
   end
 
   # Manage the meta file from a feed.
