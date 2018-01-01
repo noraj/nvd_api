@@ -24,7 +24,6 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '~> 2.4'
 
   s.add_dependency('archive-zip', '~> 0.10')
-  s.add_dependency('configatron', '~> 4.5')
   s.add_dependency('nokogiri', '~> 1.8')
   s.add_dependency('oj', '~> 3.3')
 

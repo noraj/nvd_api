@@ -6,10 +6,6 @@ require 'nvd_feed_api/version'
 require 'archive/zip'
 require 'oj'
 require 'digest'
-require 'configatron'
-
-# Globally readable / writable config
-configatron.NVDFeedScraper.feed.default_storage_location = '/tmp/'
 
 # The class that parse NVD website to get information.
 # @example Initialize a NVDFeedScraper object, get the feeds and see them:
@@ -26,19 +22,15 @@ class NVDFeedScraper
   include NvdFeedApi
 
   # Feed object.
-  # @!attribute default_storage_location
-  #   @!scope class
-  #   @return [String] default feed storage location, where will be stored JSON feeds and archives by default. Defaults to +/tmp/+.
-  #   @example
-  #     NVDFeedScraper::Feed.default_storage_location = '/srv/downloads/'
   class Feed
-    def self.default_storage_location
-      configatron.NVDFeedScraper.feed.default_storage_location
+    class << self
+      # Get / set default feed storage location, where will be stored JSON feeds and archives by default.
+      # @return [String] default feed storage location. Default to +/tmp/+.
+      # @example
+      #   NVDFeedScraper::Feed.default_storage_location = '/srv/downloads/'
+      attr_accessor :default_storage_location
     end
-
-    def self.default_storage_location=(location)
-      configatron.NVDFeedScraper.feed.default_storage_location = location
-    end
+    @default_storage_location = '/tmp'
 
     # @return [String] the name of the feed.
     # @example
