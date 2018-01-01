@@ -26,7 +26,20 @@ class NVDFeedScraper
   include NvdFeedApi
 
   # Feed object.
+  # @!attribute default_storage_location
+  #   @!scope class
+  #   @return [String] default feed storage location, where will be stored JSON feeds and archives by default. Defaults to +/tmp/+.
+  #   @example
+  #     NVDFeedScraper::Feed.default_storage_location = '/srv/downloads/'
   class Feed
+    def self.default_storage_location
+      configatron.NVDFeedScraper.feed.default_storage_location
+    end
+
+    def self.default_storage_location=(location)
+      configatron.NVDFeedScraper.feed.default_storage_location = location
+    end
+
     # @return [String] the name of the feed.
     # @example
     #   'CVE-2007'
@@ -123,11 +136,11 @@ class NVDFeedScraper
 
     # Download the JSON feed and fill the attribute.
     # @param opts [Hash] see {#download_file}.
-    # @return [String] the path of the saved JSON file. Default use {file:pages/CONFIGURATION.md Configuration}.
+    # @return [String] the path of the saved JSON file. Default use {Feed#default_storage_location}.
     # @note Will downlaod and save the zip of the JSON file, unzip and save it. This massively consume time.
     # @see #json_file
     def json_pull(opts = {})
-      opts[:destination_path] ||= configatron.NVDFeedScraper.feed.default_storage_location
+      opts[:destination_path] ||= Feed.default_storage_location
 
       skip_download = false
       destination_path = opts[:destination_path]
@@ -291,7 +304,7 @@ class NVDFeedScraper
     # @param opts [Hash] the optional downlaod parameters.
     # @option opts [String] :destination_path the destination path (may
     #   overwrite existing file).
-    #   Default use {file:pages/CONFIGURATION.md Configuration}.
+    #   Default use {Feed#default_storage_location}.
     # @option opts [String] :sha256 the SHA256 hash to check, if the file
     #   already exist and the hash matches then the download will be skipped.
     # @return [String] the saved file path.
@@ -300,7 +313,7 @@ class NVDFeedScraper
     #   download_file('https://example.org/example.zip', destination_path: '/srv/save/') # => '/srv/save/example.zip'
     #   download_file('https://example.org/example.zip', {destination_path: '/srv/save/', sha256: '70d6ea136d5036b6ce771921a949357216866c6442f44cea8497f0528c54642d'}) # => '/srv/save/example.zip'
     def download_file(file_url, opts = {})
-      opts[:destination_path] ||= configatron.NVDFeedScraper.feed.default_storage_location
+      opts[:destination_path] ||= Feed.default_storage_location
       opts[:sha256] ||= nil
 
       destination_path = opts[:destination_path]
