@@ -1,11 +1,15 @@
 # @author Alexandre ZANNI <alexandre.zanni@engineer.com>
 
-require 'net/https'
-require 'nokogiri'
-require 'nvd_feed_api/version'
-require 'archive/zip'
-require 'oj'
+# Ruby internal
 require 'digest'
+require 'net/https'
+require 'set'
+# External
+require 'archive/zip'
+require 'nokogiri'
+require 'oj'
+# Project internal
+require 'nvd_feed_api/version'
 
 # The class that parse NVD website to get information.
 # @example Initialize a NVDFeedScraper object, get the feeds and see them:
@@ -166,6 +170,10 @@ class NVDFeedScraper
     #   One CVE.
     #   @param cve [String] CVE ID, case insensitive.
     #   @return [Hash] a Ruby Hash corresponding to the CVE.
+    # @overload cve(cve_arr)
+    #   An array of CVEs.
+    #   @param cve_arr [Array<String>] Array of CVE ID, case insensitive.
+    #   @return [Array] an Array of CVE, each CVE is a Ruby Hash. May not be in the same order as provided.
     # @overload cve(cve, *)
     #   Multiple CVEs.
     #   @param cve [String] CVE ID, case insensitive.
@@ -187,41 +195,45 @@ class NVDFeedScraper
       return_value = nil
       raise 'no argument provided, 1 or more expected' if arg_cve.empty?
       if arg_cve.length == 1
-        raise TypeError "the provided argument (#{arg_cve[0]}) is not a String" unless arg_cve[0].is_a?(String)
-        raise "bad CVE name (#{arg_cve[0]})" unless /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(arg_cve[0])
-        doc = Oj::Doc.open(File.read(@json_file))
-        # Quicker than doc.fetch('/CVE_Items').size
-        doc_size = doc.fetch('/CVE_data_numberOfCVEs').to_i
-        (1..doc_size).each do |i|
-          if arg_cve[0].upcase == doc.fetch("/CVE_Items/#{i}/cve/CVE_data_meta/ID")
-            return_value = doc.fetch("/CVE_Items/#{i}")
-            break
+        if arg_cve[0].is_a?(String)
+          raise "bad CVE name (#{arg_cve[0]})" unless /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(arg_cve[0])
+          doc = Oj::Doc.open(File.read(@json_file))
+          # Quicker than doc.fetch('/CVE_Items').size
+          doc_size = doc.fetch('/CVE_data_numberOfCVEs').to_i
+          (1..doc_size).each do |i|
+            if arg_cve[0].upcase == doc.fetch("/CVE_Items/#{i}/cve/CVE_data_meta/ID")
+              return_value = doc.fetch("/CVE_Items/#{i}")
+              break
+            end
           end
+          doc.close
+        elsif arg_cve[0].is_a?(Array)
+          return_value = []
+          # Sorting CVE can allow us to parse quicker
+          # Upcase to be sure include? works
+          cves_to_find = arg_cve[0].map(&:upcase).sort
+          raise TypeError 'one of the provided arguments is not a String' unless cves_to_find.all? { |x| x.is_a?(String) }
+          raise 'bad CVE name' unless cves_to_find.all? { |x| /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(x) }
+          doc = Oj::Doc.open(File.read(@json_file))
+          # Quicker than doc.fetch('/CVE_Items').size
+          doc_size = doc.fetch('/CVE_data_numberOfCVEs').to_i
+          (1..doc_size).each do |i|
+            doc.move("/CVE_Items/#{i}")
+            cve_id = doc.fetch('cve/CVE_data_meta/ID')
+            if cves_to_find.include?(cve_id)
+              return_value.push(doc.fetch)
+              cves_to_find.delete(cve_id)
+            elsif cves_to_find.empty?
+              break
+            end
+          end
+          raise "#{cves_to_find.join(', ')} are unexisting CVEs in this feed" unless cves_to_find.empty?
+        else
+          raise TypeError "the provided argument (#{arg_cve[0]}) is nor a String or an Array"
         end
-        doc.close
       else
-        return_value = []
-        # Sorting CVE can allow us to parse the JSON only 1 time instead of severals
-        # Upcase to be sure include? works
-        cves_to_find = arg_cve.sort.map(&:upcase)
-        raise TypeError 'one of the provided arguments is not a String' unless cves_to_find.all? { |x| x.is_a?(String) }
-        raise 'bad CVE name' unless cves_to_find.all? { |x| /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(x) }
-        doc = Oj::Doc.open(File.read(@json_file))
-        # Quicker than doc.fetch('/CVE_Items').size
-        doc_size = doc.fetch('/CVE_data_numberOfCVEs').to_i
-        (1..doc_size).each do |i|
-          doc.move("/CVE_Items/#{i}")
-          cve_id = doc.fetch('cve/CVE_data_meta/ID')
-          if cves_to_find.include?(cve_id)
-            return_value.push(doc.fetch)
-            cves_to_find.delete(cve_id)
-          elsif cves_to_find.empty?
-            break
-          end
-        end
-        # Because JSON are sorted and that we sorted arguments, we only need
-        # to parse the JSON file one time.
-        raise "#{cves_to_find.join(', ')} are unexisting CVEs" unless cves_to_find.empty?
+        # Overloading a list of arguments as one array argument
+        return_value = cve(arg_cve)
       end
       return return_value
     end
@@ -362,18 +374,22 @@ class NVDFeedScraper
   #   All the feeds.
   #   @return [Array<Feed>] Attributes of all feeds. It's an array of {Feed} object.
   # @overload feeds(feed)
-  #   One feed and its attributes.
+  #   One feed.
   #   @param feed [String] Feed name as written on NVD website. Names can be obtains with {#available_feeds}.
   #   @return [Feed] Attributes of one feed. It's a {Feed} object.
+  # @overload feeds(feed_arr)
+  #   An array of feeds.
+  #   @param feed_arr [Array<String>] An array of feed names as written on NVD website. Names can be obtains with {#available_feeds}.
+  #   @return [Array<Feed>] Attributes of the feeds. It's an array of {Feed} object.
   # @overload feeds(feed, *)
-  #   List of feeds and their attributes.
+  #   Multiple feeds.
   #   @param feed [String] Feed name as written on NVD website. Names can be obtains with {#available_feeds}.
   #   @param * [String] As many feeds as you want.
-  #   @return [Array<Feed>] Attributes of a list of feeds. It's an array of {Feed} object.
+  #   @return [Array<Feed>] Attributes of the feeds. It's an array of {Feed} object.
   # @example
-  #   scraper.feeds => all feeds
-  #   scraper.feeds('CVE-2010') => return only CVE-2010 feed
-  #   scraper.feeds("CVE-2005", "CVE-2002") => return CVE-2005 and CVE-2002 feeds
+  #   scraper.feeds # => all feeds
+  #   scraper.feeds('CVE-2010') # => return only CVE-2010 feed
+  #   scraper.feeds("CVE-2005", "CVE-2002") # => return CVE-2005 and CVE-2002 feeds
   # @see https://nvd.nist.gov/vuln/data-feeds
   def feeds(*arg_feeds)
     raise 'call scrap method before using feeds method' if @feeds.nil?
@@ -381,16 +397,34 @@ class NVDFeedScraper
     if arg_feeds.empty?
       return_value = @feeds
     elsif arg_feeds.length == 1
-      @feeds.each do |feed| # feed is an object
-        return_value = feed if arg_feeds.include?(feed.name)
+      if arg_feeds[0].is_a?(String)
+        @feeds.each do |feed| # feed is an object
+          return_value = feed if arg_feeds.include?(feed.name)
+        end
+        # if nothing found return nil
+      elsif arg_feeds[0].is_a?(Array)
+        raise TypeError 'one of the provided arguments is not a String' unless arg_feeds[0].all? { |x| x.is_a?(String) }
+        # Sorting CVE can allow us to parse quicker
+        # Upcase to be sure include? works
+        # Does not use map(&:upcase) to preserve CVE-Recent and CVE-Modified
+        feeds_to_find = arg_feeds[0].map { |x| x[0..2].upcase.concat(x[3..x.size]) }.sort
+        matched_feeds = []
+        @feeds.each do |feed| # feed is an object
+          if feeds_to_find.include?(feed.name)
+            matched_feeds.push(feed)
+            feeds_to_find.delete(feed.name)
+          elsif feeds_to_find.empty?
+            break
+          end
+        end
+        return_value = matched_feeds
+        raise "#{feeds_to_find.join(', ')} are unexisting feeds" unless feeds_to_find.empty?
+      else
+        raise TypeError "the provided argument (#{arg_feeds[0]}) is nor a String or an Array"
       end
-      # if nothing found return nil
     else
-      matched_feeds = []
-      @feeds.each do |feed| # feed is an object
-        matched_feeds.push(feed) if arg_feeds.include?(feed.name)
-      end
-      return_value = matched_feeds
+      # Overloading a list of arguments as one array argument
+      return_value = feeds(arg_feeds)
     end
     return return_value
   end
@@ -413,12 +447,16 @@ class NVDFeedScraper
   #   One CVE.
   #   @param cve [String] CVE ID, case insensitive.
   #   @return [Hash] a Ruby Hash corresponding to the CVE.
+  #  @overload cve(cve_arr)
+  #   An array of CVEs.
+  #   @param cve_arr [Array<String>] Array of CVE ID, case insensitive.
+  #   @return [Array] an Array of CVE, each CVE is a Ruby Hash. May not be in the same order as provided.
   # @overload cve(cve, *)
   #   Multiple CVEs.
   #   @param cve [String] CVE ID, case insensitive.
   #   @param * [String] As many CVE ID as you want.
   #   @return [Array] an Array of CVE, each CVE is a Ruby Hash.
-  # @todo implement a CVE Class instead of returning a Hash.
+  # @todo implement a CVE Class instead of returning a Hash. May not be in the same order as provided.
   # @note {#scrap} is needed before using this method.
   # @see https://scap.nist.gov/schema/nvd/feed/0.1/nvd_cve_feed_json_0.1_beta.schema
   # @see https://scap.nist.gov/schema/nvd/feed/0.1/CVE_JSON_4.0_min.schema
@@ -430,44 +468,75 @@ class NVDFeedScraper
     return_value = nil
     raise 'no argument provided, 1 or more expected' if arg_cve.empty?
     if arg_cve.length == 1
-      raise TypeError "the provided argument (#{arg_cve}) is not a String" unless arg_cve[0].is_a?(String)
-      raise 'bad CVE name' unless /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(arg_cve[0])
-      year = /^CVE-([0-9]{4})-[0-9]{4,}$/i.match(arg_cve[0]).captures[0]
-      matched_feed = nil
-      feed_names = available_feeds
-      feed_names.delete('CVE-Modified')
-      feed_names.delete('CVE-Recent')
-      feed_names.each do |feed|
-        if /#{year}/.match?(feed)
-          matched_feed = feed
-          break
+      if arg_cve[0].is_a?(String)
+        raise 'bad CVE name' unless /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(arg_cve[0])
+        year = /^CVE-([0-9]{4})-[0-9]{4,}$/i.match(arg_cve[0]).captures[0]
+        matched_feed = nil
+        feed_names = available_feeds
+        feed_names.delete('CVE-Modified')
+        feed_names.delete('CVE-Recent')
+        feed_names.each do |feed|
+          if /#{year}/.match?(feed)
+            matched_feed = feed
+            break
+          end
         end
+        raise "bad CVE year in #{arg_cve}" if matched_feed.nil?
+        f = feeds(matched_feed)
+        f.json_pull
+        return_value = f.cve(arg_cve[0])
+      elsif arg_cve[0].is_a?(Array)
+        raise TypeError 'one of the provided arguments is not a String' unless arg_cve[0].all? { |x| x.is_a?(String) }
+        raise 'bad CVE name' unless arg_cve[0].all? { |x| /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(x) }
+        return_value = []
+        # Sorting CVE can allow us to parse quicker
+        # Upcase to be sure include? works
+        cves_to_find = arg_cve[0].map(&:upcase).sort
+        feeds_to_match = Set[]
+        cves_to_find.each do |cve|
+          feeds_to_match.add?(/^(CVE-[0-9]{4})-[0-9]{4,}$/i.match(cve).captures[0])
+        end
+        feed_names = available_feeds.to_set
+        feed_names.delete('CVE-Modified')
+        feed_names.delete('CVE-Recent')
+        raise 'unexisting CVE year was provided in some CVE' unless feeds_to_match.subset?(feed_names)
+        matched_feeds = feeds_to_match.intersection(feed_names)
+        feeds_arr = feeds(matched_feeds.to_a)
+        feeds_arr.each do |feed|
+          feed.json_pull
+          cves_obj = feed.cve(cves_to_find.select { |cve| cve.include?(feed.name) })
+          if cves_obj.is_a?(Hash)
+            return_value.push(cves_obj)
+          elsif cves_obj.is_a?(Array)
+            return_value.push(*cves_obj)
+          else
+            raise 'cve() method of the feed instance returns wrong value'
+          end
+        end
+      else
+        raise TypeError "the provided argument (#{arg_cve[0]}) is nor a String or an Array"
       end
-      raise "bad CVE year in #{arg_cve}" if matched_feed.nil?
-      f = feeds(matched_feed)
-      f.json_pull
-      return_value = f.cve(arg_cve[0])
     else
-      return_value = []
-      arg_cve.each do |cve|
-        res = cve(cve)
-        puts "#{cve} not found" if res.nil?
-        return_value.push(res)
-      end
+      # Overloading a list of arguments as one array argument
+      return_value = cve(arg_cve)
     end
     return return_value
   end
 
   # Update the feeds
   # @overload update_feeds(feed)
-  #   One feed
+  #   One feed.
   #   @param feed [Feed] feed object to update.
-  #   @return [Boolean] +true+ if the feed was updated, +false+ if it wasn't
+  #   @return [Boolean] +true+ if the feed was updated, +false+ if it wasn't.
+  # @overload update_feeds(feed_arr)
+  #   An array of feed.
+  #   @param feed_arr [Array<Feed>] array of feed objects to update.
+  #   @return [Array<Boolean>] +true+ if the feed was updated, +false+ if it wasn't.
   # @overload update_feeds(feed, *)
-  #   Multiple feeds
+  #   Multiple feeds.
   #   @param feed [Feed] feed object to update.
   #   @param * [Feed] As many feed objects as you want.
-  #   @return [Array<Boolean>] +true+ if the feed was updated, +false+ if it wasn't
+  #   @return [Array<Boolean>] +true+ if the feed was updated, +false+ if it wasn't.
   # @example
   #   s = NVDFeedScraper.new
   #   s.scrap
@@ -478,29 +547,34 @@ class NVDFeedScraper
     raise 'no argument provided, 1 or more expected' if arg_feed.empty?
     scrap
     if arg_feed.length == 1
-      raise TypeError "the provided argument #{arg_feed[0]} is not a Feed" unless arg_feed[0].is_a?(Feed)
-      raise "bad CVE name: #{arg_feed[0].name}" unless /^CVE-[0-9]{4}$/.match?(arg_feed[0].name) # case sensitive as it comes from NVD feeds
-      new_feed = feeds(arg_feed[0].name)
-      # update attributes
-      if arg_feed[0].updated != new_feed.updated
-        arg_feed[0].name = new_feed.name
-        arg_feed[0].updated = new_feed.updated
-        arg_feed[0].meta_url = new_feed.meta_url
-        arg_feed[0].gz_url = new_feed.gz_url
-        arg_feed[0].zip_url = new_feed.zip_url
-        # update if @meta was set
-        arg_feed[0].meta_pull unless feed.meta.nil?
-        # update if @json_file was set
-        arg_feed[0].json_pull unless feed.json_file.nil?
-        return_value = true
+      if arg_feed[0].is_a?(Feed)
+        new_feed = feeds(arg_feed[0].name)
+        # update attributes
+        if arg_feed[0].updated != new_feed.updated
+          arg_feed[0].name = new_feed.name
+          arg_feed[0].updated = new_feed.updated
+          arg_feed[0].meta_url = new_feed.meta_url
+          arg_feed[0].gz_url = new_feed.gz_url
+          arg_feed[0].zip_url = new_feed.zip_url
+          # update if @meta was set
+          arg_feed[0].meta_pull unless feed.meta.nil?
+          # update if @json_file was set
+          arg_feed[0].json_pull unless feed.json_file.nil?
+          return_value = true
+        end
+      elsif arg_feed[0].is_a?(Array)
+        return_value = []
+        arg_feed[0].each do |f|
+          res = update_feeds(f)
+          puts "#{f} not found" if res.nil?
+          return_value.push(res)
+        end
+      else
+        raise TypeError "the provided argument #{arg_feed[0]} is not a Feed or an Array"
       end
     else
-      return_value = []
-      arg_feed.each do |f|
-        res = update_feeds(f)
-        puts "#{f} not found" if res.nil?
-        return_value.push(res)
-      end
+      # Overloading a list of arguments as one array argument
+      return_value = update_feeds(arg_feed)
     end
     return return_value
   end
