@@ -41,3 +41,14 @@ $ gem install --development nvd_feed_api-x.x.x.gem
 ```
 
 Note: if an automatic install is needed you can get the version with `$ gem build nvd_feed_api.gemspec | grep Version | cut -d' ' -f4`.
+
+### Run the API in irb without installing the gem
+
+Usefull when you want to try your changes without building the gem and re-installing it each time.
+
+```
+$ git clone https://gitlab.com/noraj/nvd_api.git nvd_feed_api
+$ cd nvd_feed_api
+$ bundle install # for dependencies
+$ irb -Ilib -rnvd_feed_api
+```
