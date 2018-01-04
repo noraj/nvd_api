@@ -34,7 +34,7 @@ class NVDFeedScraper
       #   NVDFeedScraper::Feed.default_storage_location = '/srv/downloads/'
       attr_accessor :default_storage_location
     end
-    @default_storage_location = '/tmp'
+    @default_storage_location = '/tmp/'
 
     # @return [String] the name of the feed.
     # @example
@@ -116,7 +116,8 @@ class NVDFeedScraper
     # @param opts [Hash] see {#download_file}.
     # @return [String] the saved gz file path.
     # @example
-    #   download('~/Downloads/')
+    #   afeed.download_gz
+    #   afeed.download_gz(destination_path: '/srv/save/')
     def download_gz(opts = {})
       download_file(@gz_url, opts)
     end
@@ -125,7 +126,8 @@ class NVDFeedScraper
     # @param opts [Hash] see {#download_file}.
     # @return [String] the saved zip file path.
     # @example
-    #   download_zip('~/Downloads/')
+    #   afeed.download_zip
+    #   afeed.download_zip(destination_path: '/srv/save/')
     def download_zip(opts = {})
       download_file(@zip_url, opts)
     end
@@ -212,7 +214,7 @@ class NVDFeedScraper
           # Sorting CVE can allow us to parse quicker
           # Upcase to be sure include? works
           cves_to_find = arg_cve[0].map(&:upcase).sort
-          raise TypeError 'one of the provided arguments is not a String' unless cves_to_find.all? { |x| x.is_a?(String) }
+          raise 'one of the provided arguments is not a String' unless cves_to_find.all? { |x| x.is_a?(String) }
           raise 'bad CVE name' unless cves_to_find.all? { |x| /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(x) }
           doc = Oj::Doc.open(File.read(@json_file))
           # Quicker than doc.fetch('/CVE_Items').size
@@ -229,7 +231,7 @@ class NVDFeedScraper
           end
           raise "#{cves_to_find.join(', ')} are unexisting CVEs in this feed" unless cves_to_find.empty?
         else
-          raise TypeError "the provided argument (#{arg_cve[0]}) is nor a String or an Array"
+          raise "the provided argument (#{arg_cve[0]}) is nor a String or an Array"
         end
       else
         # Overloading a list of arguments as one array argument
@@ -256,14 +258,14 @@ class NVDFeedScraper
       return cve_names
     end
 
-    private
+    protected
 
     # @param arg_name [String] the new name of the feed.
     # @return [String] the new name of the feed.
     # @example
     #   'CVE-2007'
     def name=(arg_name)
-      raise TypeError "name (#{arg_name}) is not a string" unless arg_name.is_a(String)
+      raise "name (#{arg_name}) is not a string" unless arg_name.is_a(String)
       @name = arg_name
     end
 
@@ -272,7 +274,7 @@ class NVDFeedScraper
     # @example
     #   '10/19/2017 3:27:02 AM -04:00'
     def updated=(arg_updated)
-      raise TypeError "updated date (#{arg_updated}) is not a string" unless arg_updated.is_a(String)
+      raise "updated date (#{arg_updated}) is not a string" unless arg_updated.is_a(String)
       @updated = arg_updated
     end
 
@@ -281,7 +283,7 @@ class NVDFeedScraper
     # @example
     #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.meta'
     def meta_url=(arg_meta_url)
-      raise TypeError "meta_url (#{arg_meta_url}) is not a string" unless arg_meta_url.is_a(String)
+      raise "meta_url (#{arg_meta_url}) is not a string" unless arg_meta_url.is_a(String)
       @meta_url = arg_meta_url
     end
 
@@ -290,7 +292,7 @@ class NVDFeedScraper
     # @example
     #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.json.gz'
     def gz_url=(arg_gz_url)
-      raise TypeError "gz_url (#{arg_gz_url}) is not a string" unless arg_gz_url.is_a(String)
+      raise "gz_url (#{arg_gz_url}) is not a string" unless arg_gz_url.is_a(String)
       @gz_url = arg_gz_url
     end
 
@@ -299,7 +301,7 @@ class NVDFeedScraper
     # @example
     #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.json.zip'
     def zip_url=(arg_zip_url)
-      raise TypeError "zip_url (#{arg_zip_url}) is not a string" unless arg_zip_url.is_a(String)
+      raise "zip_url (#{arg_zip_url}) is not a string" unless arg_zip_url.is_a(String)
       @zip_url = arg_zip_url
     end
 
@@ -351,7 +353,7 @@ class NVDFeedScraper
   end
 
   # Scrap / parse the website to get the feeds and fill the {#feeds} attribute.
-  # @note {#scrap} need to be called only once but you can be called more to update if the NVD feed page changed.
+  # @note {#scrap} need to be called only once but can be called again to update if the NVD feed page changed.
   # @return [Integer] +0+ when there is no error.
   def scrap
     uri = URI(@url)
@@ -403,7 +405,7 @@ class NVDFeedScraper
         end
         # if nothing found return nil
       elsif arg_feeds[0].is_a?(Array)
-        raise TypeError 'one of the provided arguments is not a String' unless arg_feeds[0].all? { |x| x.is_a?(String) }
+        raise 'one of the provided arguments is not a String' unless arg_feeds[0].all? { |x| x.is_a?(String) }
         # Sorting CVE can allow us to parse quicker
         # Upcase to be sure include? works
         # Does not use map(&:upcase) to preserve CVE-Recent and CVE-Modified
@@ -420,7 +422,7 @@ class NVDFeedScraper
         return_value = matched_feeds
         raise "#{feeds_to_find.join(', ')} are unexisting feeds" unless feeds_to_find.empty?
       else
-        raise TypeError "the provided argument (#{arg_feeds[0]}) is nor a String or an Array"
+        raise "the provided argument (#{arg_feeds[0]}) is nor a String or an Array"
       end
     else
       # Overloading a list of arguments as one array argument
@@ -447,7 +449,7 @@ class NVDFeedScraper
   #   One CVE.
   #   @param cve [String] CVE ID, case insensitive.
   #   @return [Hash] a Ruby Hash corresponding to the CVE.
-  #  @overload cve(cve_arr)
+  # @overload cve(cve_arr)
   #   An array of CVEs.
   #   @param cve_arr [Array<String>] Array of CVE ID, case insensitive.
   #   @return [Array] an Array of CVE, each CVE is a Ruby Hash. May not be in the same order as provided.
@@ -486,7 +488,7 @@ class NVDFeedScraper
         f.json_pull
         return_value = f.cve(arg_cve[0])
       elsif arg_cve[0].is_a?(Array)
-        raise TypeError 'one of the provided arguments is not a String' unless arg_cve[0].all? { |x| x.is_a?(String) }
+        raise 'one of the provided arguments is not a String' unless arg_cve[0].all? { |x| x.is_a?(String) }
         raise 'bad CVE name' unless arg_cve[0].all? { |x| /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(x) }
         return_value = []
         # Sorting CVE can allow us to parse quicker
@@ -514,7 +516,7 @@ class NVDFeedScraper
           end
         end
       else
-        raise TypeError "the provided argument (#{arg_cve[0]}) is nor a String or an Array"
+        raise "the provided argument (#{arg_cve[0]}) is nor a String or an Array"
       end
     else
       # Overloading a list of arguments as one array argument
@@ -570,7 +572,7 @@ class NVDFeedScraper
           return_value.push(res)
         end
       else
-        raise TypeError "the provided argument #{arg_feed[0]} is not a Feed or an Array"
+        raise "the provided argument #{arg_feed[0]} is not a Feed or an Array"
       end
     else
       # Overloading a list of arguments as one array argument
