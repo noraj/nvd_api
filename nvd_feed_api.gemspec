@@ -35,9 +35,11 @@ Gem::Specification.new do |s|
   s.add_dependency('nokogiri', '~> 1.8')
   s.add_dependency('oj', '~> 3.3')
 
+  s.add_development_dependency('bundler', '~> 1.15')
   s.add_development_dependency('commonmarker', '~> 0.17') # for GMF support in YARD
   s.add_development_dependency('github-markup', '~> 1.6') # for GMF support in YARD
   s.add_development_dependency('minitest', '~> 5.10')
+  s.add_development_dependency('rake', '~> 12.3')
   s.add_development_dependency('rubocop', '~> 0.51')
   s.add_development_dependency('yard', '~> 0.9')
 end

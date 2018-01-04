@@ -1,3 +1,8 @@
 #!/usr/bin/env ruby
 
 require 'nvd_feed_api'
+
+puts 'nvd_feed_api CLI is not existing yet'
+puts 'but there are'
+puts 'nvd_feed_api_console for lanching the API in irb'
+puts 'nvd_feed_api_setup for installing dependencies'
