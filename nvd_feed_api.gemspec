@@ -19,7 +19,15 @@ Gem::Specification.new do |s|
   s.test_files    = s.files.grep(%r{^(test)/})
   s.require_paths = ['lib']
 
-  s.metadata['yard.run'] = 'yri' # use "yard" to build full HTML docs.
+  s.metadata = {
+    'yard.run'          => 'yard',
+    'bug_tracker_uri'   => 'https://gitlab.com/noraj/nvd_api/issues',
+    'changelog_uri'     => '',
+    'documentation_uri' => '',
+    'homepage_uri'      => '',
+    'source_code_uri'   => 'https://gitlab.com/noraj/nvd_api/tree/master',
+    'wiki_uri'          => 'https://gitlab.com/noraj/nvd_api/wikis/home'
+  }
 
   s.required_ruby_version = '~> 2.4'
 

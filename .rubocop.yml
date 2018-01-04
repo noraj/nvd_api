@@ -8,6 +8,9 @@ Lint/UselessAssignment:
 Metrics/AbcSize:
   Enabled: false
 
+Metrics/BlockLength:
+  Max: 50
+
 Metrics/BlockNesting:
   Max: 4
 
