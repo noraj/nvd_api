@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
     'yard.run'          => 'yard',
     'bug_tracker_uri'   => 'https://gitlab.com/noraj/nvd_api/issues',
     'changelog_uri'     => '',
-    'documentation_uri' => '',
+    'documentation_uri' => 'http://www.rubydoc.info/gems/nvd_feed_api/',
     'homepage_uri'      => '',
     'source_code_uri'   => 'https://gitlab.com/noraj/nvd_api/tree/master',
     'wiki_uri'          => 'https://gitlab.com/noraj/nvd_api/wikis/home'
