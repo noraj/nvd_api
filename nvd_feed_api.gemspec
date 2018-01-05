@@ -22,9 +22,9 @@ Gem::Specification.new do |s|
   s.metadata = {
     'yard.run'          => 'yard',
     'bug_tracker_uri'   => 'https://gitlab.com/noraj/nvd_api/issues',
-    'changelog_uri'     => '',
+    'changelog_uri'     => 'https://gitlab.com/noraj/nvd_api/blob/master/pages/CHANGELOG.md',
     'documentation_uri' => 'http://www.rubydoc.info/gems/nvd_feed_api/',
-    'homepage_uri'      => '',
+    'homepage_uri'      => 'http://rubygems.org/gems/nvd_feed_api',
     'source_code_uri'   => 'https://gitlab.com/noraj/nvd_api/tree/master',
     'wiki_uri'          => 'https://gitlab.com/noraj/nvd_api/wikis/home'
   }
