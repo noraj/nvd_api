@@ -9,7 +9,7 @@ cache:
 before_script:
   - ruby -v # Print out ruby version for debugging
   - gem install bundler  --no-ri --no-rdoc # Bundler is not installed with the image
-  - apk --no-cache add coreutils # install nproc on alpine
+  - apk --no-cache add coreutils git # install nproc (coreutils) and git on alpine
   - bundle install -j $(nproc) --path vendor # Install dependencies into ./vendor/ruby
   - rake install # install the gem
 
