@@ -12,7 +12,8 @@ before_script:
   # install nproc (coreutils) for bundle -j
   # install git for building the gemspec
   # install make, gcc for building gem native extension (commonmarker)
-  - apk --no-cache add coreutils git make gcc
+  # libc-dev for musl-dev dependency (stdlib.h) needed by gcc
+  - apk --no-cache add coreutils git make gcc libc-dev
   - bundle install -j $(nproc) --path vendor # Install dependencies into ./vendor/ruby
   - rake install # install the gem
 
