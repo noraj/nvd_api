@@ -11,8 +11,8 @@ before_script:
   - gem install bundler  --no-ri --no-rdoc # Bundler is not installed with the image
   # install nproc (coreutils) for bundle -j
   # install git for building the gemspec
-  # install make for building commonmarker gem
-  - apk --no-cache add coreutils git make
+  # install make, gcc for building gem native extension (commonmarker)
+  - apk --no-cache add coreutils git make gcc
   - bundle install -j $(nproc) --path vendor # Install dependencies into ./vendor/ruby
   - rake install # install the gem
 
