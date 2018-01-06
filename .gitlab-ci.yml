@@ -17,13 +17,13 @@ before_script:
   - bundle install -j $(nproc) --path vendor # Install dependencies into ./vendor/ruby
   - rake install # install the gem
 
-test:
-  stage: test
+rubocop:
   script:
     - rubocop
+
+test:
+  script:
     - rake test
-  except:
-    - master
 
 pages:
   stage: deploy
