@@ -6,12 +6,12 @@ Gem::Specification.new do |s|
   s.name          = 'nvd_feed_api'
   s.version       = NvdFeedApi::VERSION
   s.platform      = Gem::Platform::RUBY
-  s.date          = '2017-09-10'
+  s.date          = '2018-01-06'
   s.summary       = 'API for NVD CVE feeds'
   s.description   = 'A simple API for NVD CVE feeds'
   s.authors       = ['Alexandre ZANNI']
   s.email         = 'alexandre.zanni@europe.com'
-  s.homepage      = 'http://rubygems.org/gems/nvd_feed_api'
+  s.homepage      = 'https://noraj.gitlab.io/nvd_api/'
   s.license       = 'MIT'
 
   s.files         = `git ls-files`.split("\n")
@@ -22,9 +22,9 @@ Gem::Specification.new do |s|
   s.metadata = {
     'yard.run'          => 'yard',
     'bug_tracker_uri'   => 'https://gitlab.com/noraj/nvd_api/issues',
-    'changelog_uri'     => 'https://gitlab.com/noraj/nvd_api/blob/master/pages/CHANGELOG.md',
-    'documentation_uri' => 'http://www.rubydoc.info/gems/nvd_feed_api/',
-    'homepage_uri'      => 'http://rubygems.org/gems/nvd_feed_api',
+    'changelog_uri'     => 'https://noraj.gitlab.io/nvd_api/file.CHANGELOG.html',
+    'documentation_uri' => 'https://noraj.gitlab.io/nvd_api/',
+    'homepage_uri'      => 'https://noraj.gitlab.io/nvd_api/',
     'source_code_uri'   => 'https://gitlab.com/noraj/nvd_api/tree/master',
     'wiki_uri'          => 'https://gitlab.com/noraj/nvd_api/wikis/home'
   }

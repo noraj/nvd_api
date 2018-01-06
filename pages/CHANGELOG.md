@@ -1,3 +1,11 @@
+# [0.0.3] - 6 January 2017
+
+[0.0.3]: https://gitlab.com/noraj/nvd_api/tags/v0.0.3
+
+- Gitlab-ci supports
+- new badges on README
+- As rubydoc.info seems bug, use gitlab pages instead for hosting YARD doc
+
 # [0.0.2.pre] - 5 January 2017
 
 [0.0.2.pre]: https://gitlab.com/noraj/nvd_api/tags/v0.0.2.pre

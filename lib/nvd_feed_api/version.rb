@@ -1,3 +1,3 @@
 module NvdFeedApi
-  VERSION = '0.0.2.pre'.freeze
+  VERSION = '0.0.3'.freeze
 end
