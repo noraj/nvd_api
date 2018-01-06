@@ -18,10 +18,12 @@ before_script:
   - rake install # install the gem
 
 rubocop:
+  stage: test
   script:
     - rubocop
 
 test:
+  stage: test
   script:
     - rake test
 
