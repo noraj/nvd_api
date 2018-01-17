@@ -9,7 +9,7 @@ class NVDAPITest < Minitest::Test
   end
 
   def test_scraper_scrap
-    assert_equal(@s.scrap, 0, 'scrap method return nothing')
+    assert_equal(0, @s.scrap, 'scrap method return nothing')
   end
 
   def test_scraper_feeds_noarg
@@ -51,27 +51,27 @@ class NVDAPITest < Minitest::Test
     refute_empty(@s.cve(['CVE-2014-0160', 'cve-2009-3555']), 'cve returns an empty array')
     # bad arg
     ## string but not a CVE ID
-    assert_raises(RuntimeError) do
-      err = @s.cve('e')
-      assert_equal(err.message, 'bad CVE name')
+    err = assert_raises(RuntimeError) do
+      @s.cve('e')
     end
+    assert_equal('bad CVE name', err.message)
     ## correct CVE ID but bad year
-    assert_raises(RuntimeError) do
-      err = @s.cve('CVE-2001-31337')
-      assert_equal(err.message, 'bad CVE year in ["CVE-2001-31337"]')
+    err = assert_raises(RuntimeError) do
+      @s.cve('CVE-1800-31337')
     end
+    assert_equal('bad CVE year in ["CVE-1800-31337"]', err.message)
     ## correct CVE ID and year but unexisting CVE
     assert_nil(@s.cve('CVE-2004-31337'))
     ## correct CVE ID and year but unexisting CVE with array arg
-    assert_raises(RuntimeError) do
-      err = @s.cve(['CVE-2004-31337', 'CVE-2005-31337'])
-      assert_equal(err.message, 'CVE-2005-31337 are unexisting CVEs in this feed')
+    err = assert_raises(RuntimeError) do
+      @s.cve(['CVE-2004-31337', 'CVE-2005-31337'])
     end
+    assert_equal('CVE-2005-31337 are unexisting CVEs in this feed', err.message)
     ## wrong arg type
-    assert_raises(RuntimeError) do
-      err = @s.cve(1)
-      assert_equal(err.message, 'the provided argument (1) is nor a String or an Array')
+    err = assert_raises(RuntimeError) do
+      @s.cve(1)
     end
+    assert_equal('the provided argument (1) is nor a String or an Array', err.message)
   end
 
   def test_scraper_update_feeds
@@ -87,10 +87,10 @@ class NVDAPITest < Minitest::Test
     refute_empty(@s.update_feeds([f2017, f_modified]), 'update_feeds returns an empty array')
     # bad arg
     ## wrong arg type
-    assert_raises(RuntimeError) do
-      err = @s.update_feeds(1)
-      assert_equal(err.message, 'the provided argument 1 is not a Feed or an Array')
+    err = assert_raises(RuntimeError) do
+      @s.update_feeds(1)
     end
+    assert_equal(err.message, 'the provided argument 1 is not a Feed or an Array')
     ## empty array
     assert_empty(@s.update_feeds([]))
   end
@@ -102,7 +102,7 @@ class NVDAPITest < Minitest::Test
     assert_instance_of(String, default_val, "default_storage_location doesn't return a string")
     # check new value
     new_val = '/srv/downloads/'
-    assert_equal(NVDFeedScraper::Feed.default_storage_location = new_val, new_val, 'the new value was not set properly')
+    assert_equal(new_val, NVDFeedScraper::Feed.default_storage_location = new_val, 'the new value was not set properly')
     # put the default value back / restore context
     NVDFeedScraper::Feed.default_storage_location = default_val
   end
@@ -116,7 +116,7 @@ class NVDAPITest < Minitest::Test
     # Test name
     assert_instance_of(String, f.name, "name doesn't return a string")
     refute_empty(f.name, 'name is empty')
-    assert_equal(f.name, name, 'The name of the feed was modified')
+    assert_equal(name, f.name, 'The name of the feed was modified')
     # Test updated
     assert_instance_of(String, f.updated, "updated doesn't return a string")
     refute_empty(f.updated, 'updated is empty')
@@ -127,15 +127,15 @@ class NVDAPITest < Minitest::Test
     # Test gz_url
     assert_instance_of(String, f.gz_url, "gz_url doesn't return a string")
     refute_empty(f.gz_url, 'gz_url is empty')
-    assert_equal(f.gz_url, gz_url, 'The gz_url of the feed was modified')
+    assert_equal(gz_url, f.gz_url, 'The gz_url of the feed was modified')
     # Test zip_url
     assert_instance_of(String, f.zip_url, "zip_url doesn't return a string")
     refute_empty(f.zip_url, 'zip_url is empty')
-    assert_equal(f.zip_url, zip_url, 'The zip_url url of the feed was modified')
+    assert_equal(zip_url, f.zip_url, 'The zip_url url of the feed was modified')
     # Test meta_url
     assert_instance_of(String, f.meta_url, "meta_url doesn't return a string")
     refute_empty(f.meta_url, 'meta_url is empty')
-    assert_equal(f.meta_url, meta_url, 'The meta_url url of the feed was modified')
+    assert_equal(meta_url, f.meta_url, 'The meta_url url of the feed was modified')
   end
 
   def test_feed_available_cves
@@ -149,31 +149,31 @@ class NVDAPITest < Minitest::Test
     f = @s.feeds('CVE-2012')
     f.json_pull
     # one arg
-    assert_instance_of(Hash, @s.cve('CVE-2012-4969'), "cve doesn't return a hash")
+    assert_instance_of(Hash, f.cve('CVE-2012-4969'), "cve doesn't return a hash")
     # two args
-    assert_instance_of(Array, @s.cve('CVE-2012-4969', 'cve-2012-1889'), "cve doesn't return an array")
-    refute_empty(@s.cve('CVE-2012-4969', 'cve-2012-1889'), 'cve returns an empty array')
+    assert_instance_of(Array, f.cve('CVE-2012-4969', 'cve-2012-1889'), "cve doesn't return an array")
+    refute_empty(f.cve('CVE-2012-4969', 'cve-2012-1889'), 'cve returns an empty array')
     # array arg
-    assert_instance_of(Array, @s.cve(['CVE-2012-4969', 'cve-2012-1889']), "cve doesn't return an array")
-    refute_empty(@s.cve(['CVE-2012-4969', 'cve-2012-1889']), 'cve returns an empty array')
+    assert_instance_of(Array, f.cve(['CVE-2012-4969', 'cve-2012-1889']), "cve doesn't return an array")
+    refute_empty(f.cve(['CVE-2012-4969', 'cve-2012-1889']), 'cve returns an empty array')
     # bad arg
     ## string but not a CVE ID
-    assert_raises(RuntimeError) do
-      err = @s.cve('e')
-      assert_equal(err.message, 'bad CVE name')
+    err = assert_raises(RuntimeError) do
+      f.cve('e')
     end
-    ## correct CVE ID but bad year
-    assert_nil(@s.cve('CVE-2004-31337'))
-    ## correct CVE ID and but year not in the feed with array arg
-    assert_raises(RuntimeError) do
-      err = @s.cve(['CVE-2004-31337', 'CVE-2005-31337'])
-      assert_equal(err.message, 'CVE-2004-31337, CVE-2005-31337 are unexisting CVEs in this feed')
+    assert_equal('bad CVE name (e)', err.message)
+    ## bad year
+    assert_nil(f.cve('CVE-2004-31337'))
+    ## bad year not in the feed with array arg
+    err = assert_raises(RuntimeError) do
+      f.cve(['CVE-2004-31337', 'CVE-2005-31337'])
     end
+    assert_equal('CVE-2004-31337, CVE-2005-31337 are unexisting CVEs in this feed', err.message)
     ## wrong arg type
-    assert_raises(RuntimeError) do
-      err = @s.cve(1)
-      assert_equal(err.message, 'the provided argument (1) is nor a String or an Array')
+    err = assert_raises(RuntimeError) do
+      f.cve(1)
     end
+    assert_equal('the provided argument (1) is nor a String or an Array', err.message)
   end
 
   def test_feed_download_gz
@@ -208,19 +208,19 @@ class NVDAPITest < Minitest::Test
 
   def test_meta_parse_noarg
     m = NVDFeedScraper::Meta.new('https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2015.meta')
-    assert_equal(m.parse, 0, 'parse method return nothing')
+    assert_equal(0, m.parse, 'parse method return nothing')
   end
 
   def test_meta_parse_witharg
     m = NVDFeedScraper::Meta.new
     meta_url = 'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2015.meta'
-    assert_equal(m.parse(meta_url), 0, 'parse method return nothing')
+    assert_equal(0, m.parse(meta_url), 'parse method return nothing')
   end
 
   def test_meta_url_setter
     m = NVDFeedScraper::Meta.new
     meta_url = 'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2015.meta'
-    assert_equal(m.url = meta_url, meta_url, 'the meta URL is not set correctly')
+    assert_equal(meta_url, m.url = meta_url, 'the meta URL is not set correctly')
   end
 
   def test_meta_attributes
@@ -243,7 +243,7 @@ class NVDAPITest < Minitest::Test
     assert(m.size.match?(/[0-9]+/), 'Meta size is not an integer')
     # Test url
     assert_instance_of(String, m.url, "Meta url method doesn't return a string")
-    assert_equal(m.url, meta_url, 'The Meta url was modified')
+    assert_equal(meta_url, m.url, 'The Meta url was modified')
     # Test zip_size
     assert_instance_of(String, m.zip_size, "Meta zip_size method doesn't return a string")
     assert(m.zip_size.match?(/[0-9]+/), 'Meta zip_size is not an integer')

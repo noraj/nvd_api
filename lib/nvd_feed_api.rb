@@ -483,6 +483,8 @@ class NVDFeedScraper
             break
           end
         end
+        # CVE-2002 feed (the 1st one) contains CVE from 1999 to 2002
+        matched_feed = 'CVE-2002' if matched_feed.nil? && ('1999'..'2001').to_a.include?(year)
         raise "bad CVE year in #{arg_cve}" if matched_feed.nil?
         f = feeds(matched_feed)
         f.json_pull
@@ -501,8 +503,17 @@ class NVDFeedScraper
         feed_names = available_feeds.to_set
         feed_names.delete('CVE-Modified')
         feed_names.delete('CVE-Recent')
+        # CVE-2002 feed (the 1st one) contains CVE from 1999 to 2002
+        virtual_feeds = ['CVE-1999', 'CVE-2000', 'CVE-2001']
+        # So virtually add those feed...
+        feed_names.merge(virtual_feeds)
         raise 'unexisting CVE year was provided in some CVE' unless feeds_to_match.subset?(feed_names)
         matched_feeds = feeds_to_match.intersection(feed_names)
+        # and now that the intersection is done remove those virtual feeds and add CVE-2002 instead if needed
+        unless matched_feeds.intersection(virtual_feeds.to_set).empty?
+          matched_feeds.subtract(virtual_feeds)
+          matched_feeds.add('CVE-2002')
+        end
         feeds_arr = feeds(matched_feeds.to_a)
         feeds_arr.each do |feed|
           feed.json_pull
