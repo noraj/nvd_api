@@ -120,10 +120,6 @@ class NVDAPITest < Minitest::Test
     # Test updated
     assert_instance_of(String, f.updated, "updated doesn't return a string")
     refute_empty(f.updated, 'updated is empty')
-    # Test meta
-    assert_nil(f.meta)
-    # Test json_file
-    assert_nil(f.json_file)
     # Test gz_url
     assert_instance_of(String, f.gz_url, "gz_url doesn't return a string")
     refute_empty(f.gz_url, 'gz_url is empty')
@@ -136,6 +132,30 @@ class NVDAPITest < Minitest::Test
     assert_instance_of(String, f.meta_url, "meta_url doesn't return a string")
     refute_empty(f.meta_url, 'meta_url is empty')
     assert_equal(meta_url, f.meta_url, 'The meta_url url of the feed was modified')
+    # Test meta (before json_pull)
+    assert_nil(f.meta)
+    # Test json_file
+    assert_nil(f.json_file)
+    f.json_pull
+    assert_instance_of(String, f.json_file, "json_file doesn't return a string")
+    refute_empty(f.json_file, 'json_file is empty')
+    # Test meta (after json_pull)
+    f.meta_pull
+    assert_instance_of(NVDFeedScraper::Meta, f.meta, "meta doesn't return a Meta object")
+
+    # Test data (require json_pull)
+    # Test data_type
+    assert_instance_of(String, f.data_type, "data_type doesn't return a String")
+    refute_empty(f.data_type, 'data_type is empty')
+    # Test data_format
+    assert_instance_of(String, f.data_format, "data_format doesn't return a String")
+    refute_empty(f.data_format, 'data_format is empty')
+    # Test data_version
+    assert_instance_of(Float, f.data_version, "data_version doesn't return a Float")
+    # Test data_number_of_cves
+    assert_instance_of(Integer, f.data_number_of_cves, "data_number_of_cves doesn't return an Integer")
+    # Test data_timestamp
+    assert_instance_of(Date, f.data_timestamp, "data_timestamp doesn't return a Date")
   end
 
   def test_feed_available_cves
@@ -202,8 +222,21 @@ class NVDAPITest < Minitest::Test
 
   def test_feed_meta_pull
     f = @s.feeds('CVE-2005')
-    return_value = f.meta_pull
-    assert_instance_of(NVDFeedScraper::Meta, return_value, "meta_pull doesn't return a Meta object")
+    assert_instance_of(NVDFeedScraper::Meta, f.meta_pull, "meta_pull doesn't return a Meta object")
+  end
+
+  def test_feed_update!
+    f = @s.feeds('CVE-2006')
+    @s.scrap
+    f_new = @s.feeds('CVE-2006')
+    # Right arg
+    # can't use assert_instance_of because there is no boolean class
+    assert(%w[TrueClass FalseClass].include?(f.update!(f_new).class.to_s), "update! doesn't return a boolean")
+    # Bad arg
+    err = assert_raises(RuntimeError) do
+      f.update!('bad_arg')
+    end
+    assert_equal('bad_arg is not a Feed', err.message)
   end
 
   def test_meta_parse_noarg
