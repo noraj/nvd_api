@@ -1,3 +1,17 @@
+# [0.2.0] - 20 January 2018
+
+[0.2.0]: https://gitlab.com/noraj/nvd_api/tags/v0.2.0
+
+- new attributes for the Feed class:
+  + `data_type`
+  + `data_format`
+  + `data_version`
+  + `data_number_of_cves`
+  + `data_timestamp`
+- fix `update_feeds` method by using the new `update!` method from the Feed class
+- split source code in several files, one by class
+- improve tests and documentation
+
 # [0.1.0] - 17 January 2018
 
 [0.1.0]: https://gitlab.com/noraj/nvd_api/tags/v0.1.0
