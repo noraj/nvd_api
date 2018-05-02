@@ -1,6 +1,5 @@
 # Official language image. Look for the different tagged releases at:
 # https://hub.docker.com/r/library/ruby/tags/
-image: ruby:2.4-alpine
 
 cache:
   paths:
@@ -17,18 +16,23 @@ before_script:
   - bundle install -j $(nproc) --path vendor # Install dependencies into ./vendor/ruby
   - rake install # install the gem
 
-rubocop:
+test:2.4:
   stage: test
+  image: ruby:2.4-alpine
   script:
     - rubocop
+    - rake test
 
-test:
+test:2.5:
   stage: test
+  image: ruby:2.5-alpine
   script:
+    - rubocop
     - rake test
 
 pages:
   stage: deploy
+  image: ruby:2.4-alpine
   script:
     - yard doc
     - mkdir public

@@ -362,7 +362,7 @@ class NVDFeedScraper
       unless skip_download
         res = Net::HTTP.get_response(uri)
         raise "#{file_url} ended with #{res.code} #{res.message}" unless res.is_a?(Net::HTTPSuccess)
-        open(destination_file, 'wb') do |file|
+        File.open(destination_file, 'wb') do |file|
           file.write(res.body)
         end
       end
