@@ -1,3 +1,12 @@
+# [0.2.1] - 2 May 2018
+
+[0.2.1]: https://gitlab.com/noraj/nvd_api/tags/v0.2.1
+
+- Gitlab-CI: test vith ruby 2.4.x and 2.5.x
+- style: fix Style/ExpandPathArguments cop
+- security: fix Security/Open cop, protect from pipe command injection
+- test: fix NVD URL after NVD changed it
+
 # [0.2.0] - 20 January 2018
 
 [0.2.0]: https://gitlab.com/noraj/nvd_api/tags/v0.2.0
