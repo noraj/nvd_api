@@ -50,4 +50,4 @@ build-iPhoneSimulator/
 .rvmrc
 
 # do not check Gemfile.lock fror gems
-Gemfile.lock
+#Gemfile.lock
