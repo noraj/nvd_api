@@ -19,7 +19,7 @@ before_script:
   - bundle exec rake install # install the gem
 
 # Anchors: https://docs.gitlab.com/ee/ci/yaml/README.html#anchors
-.test_template: &job_def
+.test_template: &job_definition
   stage: test
   script:
   - bundle exec rubocop
