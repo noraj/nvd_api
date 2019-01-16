@@ -7,7 +7,7 @@ cache:
 
 before_script:
   - ruby -v # Print out ruby version for debugging
-  - gem install bundler  --no-ri --no-rdoc # Bundler is not installed with the image
+  - gem install bundler --no-document # Bundler is not installed with the image
   # install nproc (coreutils) for bundle -j
   # install git for building the gemspec
   # install make, gcc for building gem native extension (commonmarker)
@@ -26,6 +26,13 @@ test:2.4:
 test:2.5:
   stage: test
   image: ruby:2.5-alpine
+  script:
+    - rubocop
+    - rake test
+
+test:2.6:
+  stage: test
+  image: ruby:2.6-alpine
   script:
     - rubocop
     - rake test
