@@ -6,6 +6,7 @@
 - Gemfile.lock: now Gemfile.lock is not ignored anymore
 - gitlab-ci: add ruby 2.6 test, add caching key, and anchors for better reuse, always use bundle
 - NVDFeedScraper `scrap` method: change return value
+- rubocop: fix lint
 
 # [0.2.1] - 2 May 2018
 
