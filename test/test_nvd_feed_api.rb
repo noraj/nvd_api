@@ -9,7 +9,7 @@ class NVDAPITest < Minitest::Test
   end
 
   def test_scraper_scrap
-    assert_equal(0, @s.scrap, 'scrap method return nothing')
+    assert_operator(0, :<, @s.scrap, 'scrap method returns nothing')
   end
 
   def test_scraper_feeds_noarg

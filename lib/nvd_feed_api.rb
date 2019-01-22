@@ -31,7 +31,7 @@ class NVDFeedScraper
 
   # Scrap / parse the website to get the feeds and fill the {#feeds} attribute.
   # @note {#scrap} need to be called only once but can be called again to update if the NVD feed page changed.
-  # @return [Integer] +0+ when there is no error.
+  # @return [Integer] Number of scrapped feeds.
   def scrap
     uri = URI(@url)
     html = Net::HTTP.get(uri)
@@ -46,6 +46,7 @@ class NVDFeedScraper
       zip = tr.css('+ tr + tr > td > a').attr('href').value
       @feeds.push(Feed.new(name, updated, meta, gz, zip))
     end
+    return @feeds.size
   end
 
   # Return feeds. Can only be called after {#scrap}.

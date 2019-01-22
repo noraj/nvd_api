@@ -1,8 +1,17 @@
+# [0.3.0] - 22 January 2019
+
+[0.3.0]: https://gitlab.com/noraj/nvd_api/tags/v0.3.0
+
+- update dependencies: updated gemspec, ruby 2.6 support, fix gem doc flag, fix oj crash (seg fault)
+- Gemfile.lock: now Gemfile.lock is not ignored anymore
+- gitlab-ci: add ruby 2.6 test, add caching key, and anchors for better reuse, always use bundle
+- NVDFeedScraper `scrap` method: change return value
+
 # [0.2.1] - 2 May 2018
 
 [0.2.1]: https://gitlab.com/noraj/nvd_api/tags/v0.2.1
 
-- Gitlab-CI: test vith ruby 2.4.x and 2.5.x
+- Gitlab-CI: test with ruby 2.4.x and 2.5.x
 - style: fix Style/ExpandPathArguments cop
 - security: fix Security/Open cop, protect from pipe command injection
 - test: fix NVD URL after NVD changed it
