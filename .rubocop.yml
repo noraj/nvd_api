@@ -1,6 +1,9 @@
 AllCops:
   TargetRubyVersion: 2.4
 
+Layout/AlignHash:
+  EnforcedHashRocketStyle: table
+
 # Rubocop is too stupid too see that the variable is used
 Lint/UselessAssignment:
   Enabled: false

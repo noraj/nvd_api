@@ -184,6 +184,7 @@ class NVDFeedScraper
         # Verify hash integrity
         computed_h = Digest::SHA256.file(@json_file)
         raise "File corruption: #{@json_file}" unless meta.sha256.casecmp(computed_h.hexdigest).zero?
+
         # update data
         doc = Oj::Doc.open(File.read(@json_file))
         @data_type = doc.fetch('/CVE_data_type')
@@ -223,11 +224,14 @@ class NVDFeedScraper
     def cve(*arg_cve)
       raise 'json_file is nil, it needs to be populated with json_pull' if @json_file.nil?
       raise "json_file (#{@json_file}) doesn't exist" unless File.file?(@json_file)
+
       return_value = nil
       raise 'no argument provided, 1 or more expected' if arg_cve.empty?
+
       if arg_cve.length == 1
         if arg_cve[0].is_a?(String)
           raise "bad CVE name (#{arg_cve[0]})" unless /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(arg_cve[0])
+
           doc = Oj::Doc.open(File.read(@json_file))
           # Quicker than doc.fetch('/CVE_Items').size
           (1..@data_number_of_cves).each do |i|
@@ -244,6 +248,7 @@ class NVDFeedScraper
           cves_to_find = arg_cve[0].map(&:upcase).sort
           raise 'one of the provided arguments is not a String' unless cves_to_find.all? { |x| x.is_a?(String) }
           raise 'bad CVE name' unless cves_to_find.all? { |x| /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(x) }
+
           doc = Oj::Doc.open(File.read(@json_file))
           # Quicker than doc.fetch('/CVE_Items').size
           (1..@data_number_of_cves).each do |i|
@@ -273,6 +278,7 @@ class NVDFeedScraper
     def available_cves
       raise 'json_file is nil, it needs to be populated with json_pull' if @json_file.nil?
       raise "json_file (#{@json_file}) doesn't exist" unless File.file?(@json_file)
+
       doc = Oj::Doc.open(File.read(@json_file))
       # Quicker than doc.fetch('/CVE_Items').size
       cve_names = []
@@ -290,6 +296,7 @@ class NVDFeedScraper
     #   'CVE-2007'
     def name=(arg_name)
       raise "name (#{arg_name}) is not a string" unless arg_name.is_a?(String)
+
       @name = arg_name
     end
 
@@ -299,6 +306,7 @@ class NVDFeedScraper
     #   '10/19/2017 3:27:02 AM -04:00'
     def updated=(arg_updated)
       raise "updated date (#{arg_updated}) is not a string" unless arg_updated.is_a?(String)
+
       @updated = arg_updated
     end
 
@@ -308,6 +316,7 @@ class NVDFeedScraper
     #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.meta'
     def meta_url=(arg_meta_url)
       raise "meta_url (#{arg_meta_url}) is not a string" unless arg_meta_url.is_a?(String)
+
       @meta_url = arg_meta_url
     end
 
@@ -317,6 +326,7 @@ class NVDFeedScraper
     #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.json.gz'
     def gz_url=(arg_gz_url)
       raise "gz_url (#{arg_gz_url}) is not a string" unless arg_gz_url.is_a?(String)
+
       @gz_url = arg_gz_url
     end
 
@@ -326,6 +336,7 @@ class NVDFeedScraper
     #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.json.zip'
     def zip_url=(arg_zip_url)
       raise "zip_url (#{arg_zip_url}) is not a string" unless arg_zip_url.is_a?(String)
+
       @zip_url = arg_zip_url
     end
 
@@ -362,6 +373,7 @@ class NVDFeedScraper
       unless skip_download
         res = Net::HTTP.get_response(uri)
         raise "#{file_url} ended with #{res.code} #{res.message}" unless res.is_a?(Net::HTTPSuccess)
+
         File.open(destination_file, 'wb') do |file|
           file.write(res.body)
         end
@@ -376,6 +388,7 @@ class NVDFeedScraper
     def update!(fresh_feed)
       return_value = false
       raise "#{fresh_feed} is not a Feed" unless fresh_feed.is_a?(Feed)
+
       # update attributes
       if updated != fresh_feed.updated
         self.name = fresh_feed.name

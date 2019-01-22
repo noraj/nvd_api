@@ -73,6 +73,7 @@ class NVDFeedScraper
   # @see https://nvd.nist.gov/vuln/data-feeds
   def feeds(*arg_feeds)
     raise 'call scrap method before using feeds method' if @feeds.nil?
+
     return_value = nil
     if arg_feeds.empty?
       return_value = @feeds
@@ -84,6 +85,7 @@ class NVDFeedScraper
         # if nothing found return nil
       elsif arg_feeds[0].is_a?(Array)
         raise 'one of the provided arguments is not a String' unless arg_feeds[0].all? { |x| x.is_a?(String) }
+
         # Sorting CVE can allow us to parse quicker
         # Upcase to be sure include? works
         # Does not use map(&:upcase) to preserve CVE-Recent and CVE-Modified
@@ -115,6 +117,7 @@ class NVDFeedScraper
   #   scraper.available_feeds => ["CVE-Modified", "CVE-Recent", "CVE-2017", "CVE-2016", "CVE-2015", "CVE-2014", "CVE-2013", "CVE-2012", "CVE-2011", "CVE-2010", "CVE-2009", "CVE-2008", "CVE-2007", "CVE-2006", "CVE-2005", "CVE-2004", "CVE-2003", "CVE-2002"]
   def available_feeds
     raise 'call scrap method before using available_feeds method' if @feeds.nil?
+
     feed_names = []
     @feeds.each do |feed| # feed is an objet
       feed_names.push(feed.name)
@@ -147,9 +150,11 @@ class NVDFeedScraper
   def cve(*arg_cve)
     return_value = nil
     raise 'no argument provided, 1 or more expected' if arg_cve.empty?
+
     if arg_cve.length == 1
       if arg_cve[0].is_a?(String)
         raise 'bad CVE name' unless /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(arg_cve[0])
+
         year = /^CVE-([0-9]{4})-[0-9]{4,}$/i.match(arg_cve[0]).captures[0]
         matched_feed = nil
         feed_names = available_feeds
@@ -164,12 +169,14 @@ class NVDFeedScraper
         # CVE-2002 feed (the 1st one) contains CVE from 1999 to 2002
         matched_feed = 'CVE-2002' if matched_feed.nil? && ('1999'..'2001').to_a.include?(year)
         raise "bad CVE year in #{arg_cve}" if matched_feed.nil?
+
         f = feeds(matched_feed)
         f.json_pull
         return_value = f.cve(arg_cve[0])
       elsif arg_cve[0].is_a?(Array)
         raise 'one of the provided arguments is not a String' unless arg_cve[0].all? { |x| x.is_a?(String) }
         raise 'bad CVE name' unless arg_cve[0].all? { |x| /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(x) }
+
         return_value = []
         # Sorting CVE can allow us to parse quicker
         # Upcase to be sure include? works
@@ -186,6 +193,7 @@ class NVDFeedScraper
         # So virtually add those feed...
         feed_names.merge(virtual_feeds)
         raise 'unexisting CVE year was provided in some CVE' unless feeds_to_match.subset?(feed_names)
+
         matched_feeds = feeds_to_match.intersection(feed_names)
         # and now that the intersection is done remove those virtual feeds and add CVE-2002 instead if needed
         unless matched_feeds.intersection(virtual_feeds.to_set).empty?
@@ -236,6 +244,7 @@ class NVDFeedScraper
   def update_feeds(*arg_feed)
     return_value = false
     raise 'no argument provided, 1 or more expected' if arg_feed.empty?
+
     scrap
     if arg_feed.length == 1
       if arg_feed[0].is_a?(Feed)

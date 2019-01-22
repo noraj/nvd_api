@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    nvd_feed_api (0.2.1)
+    nvd_feed_api (0.3.0)
       archive-zip (~> 0.11)
       nokogiri (~> 1.10)
       oj (>= 3.7.8, < 4)

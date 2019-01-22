@@ -91,6 +91,7 @@ class NVDFeedScraper
       end
 
       raise "Can't parse if the URL is empty" if @url.nil?
+
       uri = URI(@url)
 
       meta = Net::HTTP.get(uri)
