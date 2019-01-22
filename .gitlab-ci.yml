@@ -41,7 +41,7 @@ pages:
   stage: deploy
   image: ruby:2.4-alpine
   script:
-    - yard doc
+    - bundle exec yard doc
     - mkdir public
     - mv doc/* public/
   artifacts:
