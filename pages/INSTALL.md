@@ -10,14 +10,7 @@ $ gem install nvd_feed_api
 
 ## Development
 
-It's better to use [RVM](https://rvm.io/) to have latests version of ruby and to avoid trashing your system ruby.
-
-To keep clean gem dependencies create a gemset with rvm:
-
-```
-$ rvm gemset create nvd_feed_api
-$ rvm gemset use nvd_feed_api
-```
+It's better to use [rbenv](https://github.com/rbenv/rbenv) to have latests version of ruby and to avoid trashing your system ruby.
 
 ### Install from rubygems.org
 
@@ -53,7 +46,7 @@ Note: if an automatic install is needed you can get the version with `$ gem buil
 
 ### Run the API in irb without installing the gem
 
-Usefull when you want to try your changes without building the gem and re-installing it each time.
+Useful when you want to try your changes without building the gem and re-installing it each time.
 
 ```
 $ git clone https://gitlab.com/noraj/nvd_api.git nvd_feed_api
