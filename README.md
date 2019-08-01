@@ -5,6 +5,7 @@
 [![Gem stable](https://img.shields.io/gem/dv/nvd_feed_api/stable.svg)][rubygems]
 [![Gem latest](https://img.shields.io/gem/dtv/nvd_feed_api.svg)][rubygems]
 [![Gem total download](https://img.shields.io/gem/dt/nvd_feed_api.svg)][rubygems]
+[![Rawsec's CyberSecurity Inventory](https://inventory.rawsec.ml/img/badges/Rawsec-inventoried-FF5050_flat.svg)](https://inventory.rawsec.ml/tools.html#nvd_feed_api)
 
 [rubygems]:https://rubygems.org/gems/nvd_feed_api/
 
