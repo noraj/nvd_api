@@ -47,3 +47,6 @@ Style/PerlBackrefs:
 # Allow explicit return
 Style/RedundantReturn:
   Enabled: false
+
+Style/WordArray:
+  EnforcedStyle: brackets
