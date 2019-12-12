@@ -1,5 +1,15 @@
 {
   "extends": [
     "config:base"
+  ],
+  "bundler": {
+    "enabled": true
+  },
+  "assignees": [
+    "noraj"
+  ],
+  "enabledManagers": [
+    "bundler",
+    "gitlabci"
   ]
 }
