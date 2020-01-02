@@ -37,6 +37,10 @@ test:2.6:
   <<: *job_definition
   image: ruby:2.6-alpine
 
+test:2.7:
+  <<: *job_definition
+  image: ruby:2.7-alpine
+
 pages:
   stage: deploy
   image: ruby:2.4-alpine
