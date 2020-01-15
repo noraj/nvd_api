@@ -13,7 +13,7 @@
 
 **nvd_feed_api** is a simple ruby API for NVD CVE feeds.
 
-The API will help you to download and manage NVD Data Feeds, search for CVEs, build your vulerability assesment platform or vulnerability database.
+The API will help you to download and manage NVD Data Feeds, search for CVEs, build your vulnerability assessment platform or vulnerability database.
 
 Name            | Link
 ---             | ---
