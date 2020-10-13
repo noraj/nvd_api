@@ -363,12 +363,10 @@ class NVDFeedScraper
       uri = URI(file_url)
       filename = uri.path.split('/').last
       destination_file = destination_path + filename
-      unless opts[:sha256].nil?
-        if File.file?(destination_file)
-          # Verify hash to see if it is the latest
-          computed_h = Digest::SHA256.file(destination_file)
-          skip_download = true if opts[:sha256].casecmp(computed_h.hexdigest).zero?
-        end
+      if !opts[:sha256].nil? && File.file?(destination_file)
+        # Verify hash to see if it is the latest
+        computed_h = Digest::SHA256.file(destination_file)
+        skip_download = true if opts[:sha256].casecmp(computed_h.hexdigest).zero?
       end
       unless skip_download
         res = Net::HTTP.get_response(uri)

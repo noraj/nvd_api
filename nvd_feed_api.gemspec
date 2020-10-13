@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
     'wiki_uri'          => 'https://gitlab.com/noraj/nvd_api/wikis/home'
   }
 
-  s.required_ruby_version = '~> 2.4'
+  s.required_ruby_version = '~> 2.7'
 
   s.add_dependency('archive-zip', '~> 0.11')
   s.add_dependency('nokogiri', '~> 1.10')

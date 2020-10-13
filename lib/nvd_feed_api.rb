@@ -42,14 +42,15 @@ class NVDFeedScraper
     tmp_feeds = {}
     doc.css('#vuln-feed-table table.xml-feed-table tr[data-testid]').each do |tr|
       num, type = tr.attr('data-testid')[13..].split('-')
-      if type == 'meta'
+      case type
+      when 'meta'
         tmp_feeds[num] = {}
         tmp_feeds[num][:name] = tr.css('td')[0].text
         tmp_feeds[num][:updated] = tr.css('td')[1].text
         tmp_feeds[num][:meta] = BASE + tr.css('td')[2].css('> a').attr('href').value
-      elsif type == 'gz'
+      when 'gz'
         tmp_feeds[num][:gz] = BASE + tr.css('td > a').attr('href').value
-      elsif type == 'zip'
+      when 'zip'
         tmp_feeds[num][:zip] = BASE + tr.css('td > a').attr('href').value
         @feeds.push(Feed.new(tmp_feeds[num][:name],
                              tmp_feeds[num][:updated],

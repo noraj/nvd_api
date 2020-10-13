@@ -83,10 +83,9 @@ class NVDFeedScraper
     #   @param url [String] see {Feed.meta_url}
     #   @return [Integer] Returns +0+ when there is no error.
     def parse(*arg)
-      if arg.empty?
-      elsif arg.length == 1 # arg = url
+      if arg.length == 1 # arg = url
         self.url = arg[0]
-      else
+      elsif arg.length > 1
         raise 'Too much arguments'
       end
 
