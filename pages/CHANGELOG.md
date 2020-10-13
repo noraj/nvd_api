@@ -1,5 +1,11 @@
 # [0.3.0] - 22 January 2019
 
+[0.3.1]: https://gitlab.com/noraj/nvd_api/tags/v0.3.1
+
+- fix scrap method to reflect NVD feeds page changes
+- update dependencies
+- update rubocop rules
+
 [0.3.0]: https://gitlab.com/noraj/nvd_api/tags/v0.3.0
 
 - update dependencies: updated gemspec, ruby 2.6 support, fix gem doc flag, fix oj crash (seg fault)

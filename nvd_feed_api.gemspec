@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.name          = 'nvd_feed_api'
   s.version       = NvdFeedApi::VERSION
   s.platform      = Gem::Platform::RUBY
-  s.date          = '2018-01-06'
+  s.date          = '2020-10-03'
   s.summary       = 'API for NVD CVE feeds'
   s.description   = 'A simple API for NVD CVE feeds'
   s.authors       = ['Alexandre ZANNI']
@@ -35,12 +35,12 @@ Gem::Specification.new do |s|
   s.add_dependency('nokogiri', '~> 1.10')
   s.add_dependency('oj', '>= 3.7.8', '<4')
 
-  s.add_development_dependency('bundler', '~> 2.0')
-  s.add_development_dependency('commonmarker', '~> 0.18') # for GMF support in YARD
+  s.add_development_dependency('bundler', '~> 2.1')
+  s.add_development_dependency('commonmarker', '~> 0.21') # for GMF support in YARD
   s.add_development_dependency('github-markup', '~> 3.0') # for GMF support in YARD
-  s.add_development_dependency('minitest', '~> 5.11')
-  s.add_development_dependency('rake', '~> 12.3')
-  s.add_development_dependency('redcarpet', '~> 3.4') # for GMF support in YARD
-  s.add_development_dependency('rubocop', '~> 0.63')
+  s.add_development_dependency('minitest', '~> 5.14')
+  s.add_development_dependency('rake', '~> 13.0')
+  s.add_development_dependency('redcarpet', '~> 3.5') # for GMF support in YARD
+  s.add_development_dependency('rubocop', '~> 0.92')
   s.add_development_dependency('yard', '~> 0.9')
 end

@@ -18,8 +18,9 @@ require 'nvd_feed_api/feed'
 #   scraper.feeds("CVE-2007")
 #   cve2007, cve2015 = scraper.feeds("CVE-2007", "CVE-2015")
 class NVDFeedScraper
+  BASE = 'https://nvd.nist.gov'.freeze
   # The NVD url where is located the data feeds.
-  URL = 'https://nvd.nist.gov/vuln/data-feeds'.freeze
+  URL = "#{BASE}/vuln/data-feeds".freeze
   # Load constants
   include NvdFeedApi
 
@@ -38,13 +39,24 @@ class NVDFeedScraper
 
     doc = Nokogiri::HTML(html)
     @feeds = []
-    doc.css('h3#JSON_FEED ~ div.row:first-of-type table.xml-feed-table > tbody > tr[data-testid*=desc]').each do |tr|
-      name = tr.css('td')[0].text
-      updated = tr.css('td')[1].text
-      meta = tr.css('td')[2].css('> a').attr('href').value
-      gz = tr.css('+ tr > td > a').attr('href').value
-      zip = tr.css('+ tr + tr > td > a').attr('href').value
-      @feeds.push(Feed.new(name, updated, meta, gz, zip))
+    tmp_feeds = {}
+    doc.css('#vuln-feed-table table.xml-feed-table tr[data-testid]').each do |tr|
+      num, type = tr.attr('data-testid')[13..].split('-')
+      if type == 'meta'
+        tmp_feeds[num] = {}
+        tmp_feeds[num][:name] = tr.css('td')[0].text
+        tmp_feeds[num][:updated] = tr.css('td')[1].text
+        tmp_feeds[num][:meta] = BASE + tr.css('td')[2].css('> a').attr('href').value
+      elsif type == 'gz'
+        tmp_feeds[num][:gz] = BASE + tr.css('td > a').attr('href').value
+      elsif type == 'zip'
+        tmp_feeds[num][:zip] = BASE + tr.css('td > a').attr('href').value
+        @feeds.push(Feed.new(tmp_feeds[num][:name],
+                             tmp_feeds[num][:updated],
+                             tmp_feeds[num][:meta],
+                             tmp_feeds[num][:gz],
+                             tmp_feeds[num][:zip]))
+      end
     end
     return @feeds.size
   end

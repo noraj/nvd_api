@@ -1,8 +1,12 @@
 AllCops:
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.7
+  NewCops: enable
 
-Layout/AlignHash:
+Layout/HashAlignment:
   EnforcedHashRocketStyle: table
+
+Layout/LineLength:
+  Enabled: false
 
 # Rubocop is too stupid too see that the variable is used
 Lint/UselessAssignment:
@@ -22,9 +26,6 @@ Metrics/ClassLength:
 
 Metrics/CyclomaticComplexity:
   Max: 20
-
-Metrics/LineLength:
-  Enabled: false
 
 Metrics/MethodLength:
   Max: 100
