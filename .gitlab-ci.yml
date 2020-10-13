@@ -25,17 +25,9 @@ before_script:
   - bundle exec rubocop
   - bundle exec rake test
 
-test:2.4:
-  <<: *job_definition
-  image: ruby:2.4-alpine
-
-test:2.5:
-  <<: *job_definition
-  image: ruby:2.5-alpine
-
-test:2.6:
-  <<: *job_definition
-  image: ruby:2.6-alpine
+#test:2.4:
+#  <<: *job_definition
+#  image: ruby:2.4-alpine
 
 test:2.7:
   <<: *job_definition
@@ -43,7 +35,7 @@ test:2.7:
 
 pages:
   stage: deploy
-  image: ruby:2.4-alpine
+  image: ruby:2.7-alpine
   script:
     - bundle exec yard doc
     - mkdir public
