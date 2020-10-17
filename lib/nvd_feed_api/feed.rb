@@ -229,7 +229,8 @@ class NVDFeedScraper
       raise 'no argument provided, 1 or more expected' if arg_cve.empty?
 
       if arg_cve.length == 1
-        if arg_cve[0].is_a?(String)
+        case arg_cve[0]
+        when String
           raise "bad CVE name (#{arg_cve[0]})" unless /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(arg_cve[0])
 
           doc = Oj::Doc.open(File.read(@json_file))
@@ -241,7 +242,7 @@ class NVDFeedScraper
             end
           end
           doc.close
-        elsif arg_cve[0].is_a?(Array)
+        when Array
           return_value = []
           # Sorting CVE can allow us to parse quicker
           # Upcase to be sure include? works

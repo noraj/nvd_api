@@ -91,12 +91,13 @@ class NVDFeedScraper
     if arg_feeds.empty?
       return_value = @feeds
     elsif arg_feeds.length == 1
-      if arg_feeds[0].is_a?(String)
+      case arg_feeds[0]
+      when String
         @feeds.each do |feed| # feed is an object
           return_value = feed if arg_feeds.include?(feed.name)
         end
         # if nothing found return nil
-      elsif arg_feeds[0].is_a?(Array)
+      when Array
         raise 'one of the provided arguments is not a String' unless arg_feeds[0].all? { |x| x.is_a?(String) }
 
         # Sorting CVE can allow us to parse quicker
@@ -165,7 +166,8 @@ class NVDFeedScraper
     raise 'no argument provided, 1 or more expected' if arg_cve.empty?
 
     if arg_cve.length == 1
-      if arg_cve[0].is_a?(String)
+      case arg_cve[0]
+      when String
         raise 'bad CVE name' unless /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(arg_cve[0])
 
         year = /^CVE-([0-9]{4})-[0-9]{4,}$/i.match(arg_cve[0]).captures[0]
@@ -186,7 +188,7 @@ class NVDFeedScraper
         f = feeds(matched_feed)
         f.json_pull
         return_value = f.cve(arg_cve[0])
-      elsif arg_cve[0].is_a?(Array)
+      when Array
         raise 'one of the provided arguments is not a String' unless arg_cve[0].all? { |x| x.is_a?(String) }
         raise 'bad CVE name' unless arg_cve[0].all? { |x| /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(x) }
 
@@ -217,9 +219,10 @@ class NVDFeedScraper
         feeds_arr.each do |feed|
           feed.json_pull
           cves_obj = feed.cve(cves_to_find.select { |cve| cve.include?(feed.name) })
-          if cves_obj.is_a?(Hash)
+          case cves_obj
+          when Hash
             return_value.push(cves_obj)
-          elsif cves_obj.is_a?(Array)
+          when Array
             return_value.push(*cves_obj)
           else
             raise 'cve() method of the feed instance returns wrong value'
@@ -260,11 +263,12 @@ class NVDFeedScraper
 
     scrap
     if arg_feed.length == 1
-      if arg_feed[0].is_a?(Feed)
+      case arg_feed[0]
+      when Feed
         new_feed = feeds(arg_feed[0].name)
         # update attributes
         return_value = arg_feed[0].update!(new_feed)
-      elsif arg_feed[0].is_a?(Array)
+      when Array
         return_value = []
         arg_feed[0].each do |f|
           res = update_feeds(f)
