@@ -15,7 +15,7 @@ GEM
     commonmarker (0.21.0)
       ruby-enum (~> 0.5)
     concurrent-ruby (1.1.7)
-    github-markup (3.0.4)
+    github-markup (3.0.5)
     i18n (1.8.5)
       concurrent-ruby (~> 1.0)
     io-like (0.3.1)
