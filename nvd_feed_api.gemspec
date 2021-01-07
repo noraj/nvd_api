@@ -1,6 +1,4 @@
-lib = File.expand_path('lib', __dir__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'nvd_feed_api/version'
+require_relative 'lib/nvd_feed_api/version'
 
 Gem::Specification.new do |s|
   s.name          = 'nvd_feed_api'
@@ -32,7 +30,7 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '~> 2.7'
 
   s.add_dependency('archive-zip', '~> 0.11')
-  s.add_dependency('nokogiri', '~> 1.10')
+  s.add_dependency('nokogiri', '~> 1.11')
   s.add_dependency('oj', '>= 3.7.8', '<4')
 
   s.add_development_dependency('bundler', '~> 2.1')
@@ -41,6 +39,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency('minitest', '~> 5.14')
   s.add_development_dependency('rake', '~> 13.0')
   s.add_development_dependency('redcarpet', '~> 3.5') # for GMF support in YARD
-  s.add_development_dependency('rubocop', '~> 0.92')
+  s.add_development_dependency('rubocop', '~> 0.93')
   s.add_development_dependency('yard', '~> 0.9')
 end
