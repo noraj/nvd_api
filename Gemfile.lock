@@ -24,7 +24,7 @@ GEM
     nokogiri (1.11.3)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
-    oj (3.11.2)
+    oj (3.11.3)
     parallel (1.20.1)
     parser (3.0.0.0)
       ast (~> 2.4.1)
