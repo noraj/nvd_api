@@ -4,7 +4,6 @@ Gem::Specification.new do |s|
   s.name          = 'nvd_feed_api'
   s.version       = NvdFeedApi::VERSION
   s.platform      = Gem::Platform::RUBY
-  s.date          = '2020-10-03'
   s.summary       = 'API for NVD CVE feeds'
   s.description   = 'A simple API for NVD CVE feeds'
   s.authors       = ['Alexandre ZANNI']
@@ -27,7 +26,7 @@ Gem::Specification.new do |s|
     'wiki_uri'          => 'https://gitlab.com/noraj/nvd_api/wikis/home'
   }
 
-  s.required_ruby_version = '~> 2.7'
+  s.required_ruby_version = ['>= 2.7.0', '< 3.1']
 
   s.add_dependency('archive-zip', '~> 0.11')
   s.add_dependency('nokogiri', '~> 1.11')
