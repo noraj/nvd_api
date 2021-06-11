@@ -15,7 +15,7 @@ GEM
     commonmarker (0.21.2)
       ruby-enum (~> 0.5)
     concurrent-ruby (1.1.8)
-    github-markup (3.0.5)
+    github-markup (4.0.0)
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     io-like (0.3.1)
@@ -57,7 +57,7 @@ PLATFORMS
 DEPENDENCIES
   bundler (~> 2.1)
   commonmarker (~> 0.21)
-  github-markup (~> 3.0)
+  github-markup (~> 4.0)
   minitest (~> 5.14)
   nvd_feed_api!
   rake (~> 13.0)
