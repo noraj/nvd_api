@@ -13,7 +13,7 @@ class NVDFeedScraper
   class Feed
     class << self
       # Get / set default feed storage location, where will be stored JSON feeds and archives by default.
-      # @return [String] default feed storage location. Default to +/tmp/+.
+      # @return [String] default feed storage location. Default to `/tmp/`.
       # @example
       #   NVDFeedScraper::Feed.default_storage_location = '/srv/downloads/'
       attr_accessor :default_storage_location
@@ -69,11 +69,11 @@ class NVDFeedScraper
     #   f.json_file # => "/tmp/nvdcve-1.0-2014.json"
     attr_reader :json_file
 
-    # @return [String] the type of the feed, should always be +CVE+.
+    # @return [String] the type of the feed, should always be `CVE`.
     # @note Return nil if not previously loaded by {#json_pull}.
     attr_reader :data_type
 
-    # @return [String] the format of the feed, should always be +MITRE+.
+    # @return [String] the format of the feed, should always be `MITRE`.
     # @note Return nil if not previously loaded by {#json_pull}.
     attr_reader :data_format
 
@@ -96,7 +96,7 @@ class NVDFeedScraper
     # @param gz_url [String] see {#gz_url}.
     # @param zip_url [String] see {#zip_url}.
     def initialize(name, updated, meta_url, gz_url, zip_url)
-      # Frome meta file
+      # From meta file
       @name = name
       @updated = updated
       @meta_url = meta_url
@@ -146,7 +146,7 @@ class NVDFeedScraper
     # Download the JSON feed and fill the attribute.
     # @param opts [Hash] see {#download_file}.
     # @return [String] the path of the saved JSON file. Default use {Feed#default_storage_location}.
-    # @note Will downlaod and save the zip of the JSON file, unzip and save it. This massively consume time.
+    # @note Will download and save the zip of the JSON file, unzip and save it. This massively consume time.
     # @see #json_file
     def json_pull(opts = {})
       opts[:destination_path] ||= Feed.default_storage_location
@@ -382,7 +382,7 @@ class NVDFeedScraper
 
     # Update the feed
     # @param fresh_feed [Feed] the fresh feed from which the feed will be updated.
-    # @return [Boolean] +true+ if the feed was updated, +false+ if it wasn't.
+    # @return [Boolean] `true` if the feed was updated, `false` if it wasn't.
     # @note Is not intended to be used directly, use {NVDFeedScraper#update_feeds} instead.
     def update!(fresh_feed)
       return_value = false

@@ -13,7 +13,6 @@ GEM
       io-like (~> 0.3.0)
     ast (2.4.2)
     commonmarker (0.23.2)
-    github-markup (4.0.0)
     io-like (0.3.1)
     mini_portile2 (2.6.1)
     minitest (5.14.4)
@@ -27,7 +26,6 @@ GEM
     racc (1.5.2)
     rainbow (3.0.0)
     rake (13.0.6)
-    redcarpet (3.5.1)
     regexp_parser (2.1.1)
     rexml (3.2.5)
     rubocop (1.23.0)
@@ -51,15 +49,16 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  archive-zip (~> 0.11)
   bundler (~> 2.1)
   commonmarker (~> 0.21)
-  github-markup (~> 4.0)
-  minitest (~> 5.14)
+  minitest (~> 5.12)
+  nokogiri (~> 1.11)
   nvd_feed_api!
+  oj (>= 3.7.8, < 4)
   rake (~> 13.0)
-  redcarpet (~> 3.5)
-  rubocop (~> 1.16)
-  yard (~> 0.9)
+  rubocop (~> 1.23)
+  yard (>= 0.9.27, < 0.10)
 
 BUNDLED WITH
    2.2.15

@@ -242,16 +242,16 @@ class NVDFeedScraper
   # @overload update_feeds(feed)
   #   One feed.
   #   @param feed [Feed] feed object to update.
-  #   @return [Boolean] +true+ if the feed was updated, +false+ if it wasn't.
+  #   @return [Boolean] `true` if the feed was updated, `false` if it wasn't.
   # @overload update_feeds(feed_arr)
   #   An array of feed.
   #   @param feed_arr [Array<Feed>] array of feed objects to update.
-  #   @return [Array<Boolean>] +true+ if the feed was updated, +false+ if it wasn't.
+  #   @return [Array<Boolean>] `true` if the feed was updated, `false` if it wasn't.
   # @overload update_feeds(feed, *)
   #   Multiple feeds.
   #   @param feed [Feed] feed object to update.
   #   @param * [Feed] As many feed objects as you want.
-  #   @return [Array<Boolean>] +true+ if the feed was updated, +false+ if it wasn't.
+  #   @return [Array<Boolean>] `true` if the feed was updated, `false` if it wasn't.
   # @example
   #   s = NVDFeedScraper.new
   #   s.scrap

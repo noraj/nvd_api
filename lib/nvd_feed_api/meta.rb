@@ -76,12 +76,12 @@ class NVDFeedScraper
     # Parse the meta file from the URL and set the attributes.
     # @overload parse
     #   Parse the meta file from the URL and set the attributes.
-    #   @return [Integer] Returns +0+ when there is no error.
+    #   @return [Integer] Returns `0` when there is no error.
     # @overload parse(url)
     #   Set the URL of the meta file of the feed and
     #   parse the meta file from the URL and set the attributes.
     #   @param url [String] see {Feed.meta_url}
-    #   @return [Integer] Returns +0+ when there is no error.
+    #   @return [Integer] Returns `0` when there is no error.
     def parse(*arg)
       if arg.length == 1 # arg = url
         self.url = arg[0]

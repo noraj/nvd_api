@@ -1,6 +1,8 @@
 --protected
 --private
 --output-dir doc/
+--markup markdown
+--markup-provider commonmarker
 -
 --main README.md
 LICENSE.txt
