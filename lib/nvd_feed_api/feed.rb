@@ -373,9 +373,7 @@ class NVDFeedScraper
         res = Net::HTTP.get_response(uri)
         raise "#{file_url} ended with #{res.code} #{res.message}" unless res.is_a?(Net::HTTPSuccess)
 
-        File.open(destination_file, 'wb') do |file|
-          file.write(res.body)
-        end
+        File.binwrite(destination_file, res.body)
       end
       return destination_file
     end

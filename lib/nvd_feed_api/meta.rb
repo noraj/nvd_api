@@ -95,7 +95,7 @@ class NVDFeedScraper
 
       meta = Net::HTTP.get(uri)
 
-      meta = meta.split.map { |x| x.split(':', 2) }.to_h
+      meta = meta.split.to_h { |x| x.split(':', 2) }
 
       raise 'no lastModifiedDate attribute found' unless meta['lastModifiedDate']
       raise 'no valid size attribute found' unless /[0-9]+/.match?(meta['size'])

@@ -27,7 +27,7 @@ Gem::Specification.new do |s|
     'rubygems_mfa_required' => 'true'
   }
 
-  s.required_ruby_version = ['>= 2.7.0', '< 3.1']
+  s.required_ruby_version = ['>= 2.7.0', '< 3.2']
 
   s.add_dependency('archive-zip', '~> 0.11')
   s.add_dependency('nokogiri', '~> 1.11')
