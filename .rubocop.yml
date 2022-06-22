@@ -1,6 +1,10 @@
 AllCops:
   TargetRubyVersion: 2.7
   NewCops: enable
+  SuggestExtensions: false
+
+require:
+  - rubocop-minitest
 
 Layout/HashAlignment:
   EnforcedHashRocketStyle: table
@@ -31,6 +35,9 @@ Metrics/MethodLength:
   Max: 100
 
 Metrics/PerceivedComplexity:
+  Enabled: false
+
+Minitest/MultipleAssertions:
   Enabled: false
 
 Naming/VariableName:

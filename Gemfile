@@ -19,6 +19,7 @@ end
 
 group :development, :lint do
   gem 'rubocop', '~> 1.23'
+  gem 'rubocop-minitest', '~> 0.20.1'
 end
 
 group :development, :docs do

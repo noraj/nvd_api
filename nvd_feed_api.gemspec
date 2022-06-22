@@ -13,7 +13,6 @@ Gem::Specification.new do |s|
 
   s.files         = `git ls-files`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map { |f| File.basename(f) }
-  s.test_files    = s.files.grep(%r{^(test)/})
   s.require_paths = ['lib']
 
   s.metadata = {

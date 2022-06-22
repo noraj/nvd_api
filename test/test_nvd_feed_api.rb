@@ -78,7 +78,7 @@ class NVDAPITest < Minitest::Test
     f2017, f2016, f_modified = @s.feeds('CVE-2017', 'CVE-2016', 'CVE-Modified')
     # one arg
     # can't use assert_instance_of because there is no boolean class
-    assert(['TrueClass', 'FalseClass'].include?(@s.update_feeds(f2017).class.to_s), "update_feeds doesn't return a boolean")
+    assert_includes(['TrueClass', 'FalseClass'], @s.update_feeds(f2017).class.to_s, "update_feeds doesn't return a boolean")
     # two args
     assert_instance_of(Array, @s.update_feeds(f2017, f2016), "update_feeds doesn't return an array")
     refute_empty(@s.update_feeds(f2017, f2016), 'update_feeds returns an empty array')
@@ -90,7 +90,7 @@ class NVDAPITest < Minitest::Test
     err = assert_raises(RuntimeError) do
       @s.update_feeds(1)
     end
-    assert_equal(err.message, 'the provided argument 1 is not a Feed or an Array')
+    assert_equal('the provided argument 1 is not a Feed or an Array', err.message)
     ## empty array
     assert_empty(@s.update_feeds([]))
   end
@@ -231,7 +231,7 @@ class NVDAPITest < Minitest::Test
     f_new = @s.feeds('CVE-2006')
     # Right arg
     # can't use assert_instance_of because there is no boolean class
-    assert(['TrueClass', 'FalseClass'].include?(f.update!(f_new).class.to_s), "update! doesn't return a boolean")
+    assert_includes(['TrueClass', 'FalseClass'], f.update!(f_new).class.to_s, "update! doesn't return a boolean")
     # Bad arg
     err = assert_raises(RuntimeError) do
       f.update!('bad_arg')
