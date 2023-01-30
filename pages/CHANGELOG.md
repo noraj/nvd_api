@@ -1,5 +1,8 @@
 # [unreleased]
 
+- Chore:
+  - Add support for Ruby 3.2
+
 # [0.4.0] - 31 January 2021
 
 - Dependencies:
