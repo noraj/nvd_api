@@ -50,7 +50,7 @@ GEM
       rubocop (>= 0.90, < 2.0)
     ruby-progressbar (1.13.0)
     unicode-display_width (2.5.0)
-    yard (0.9.34)
+    yard (0.9.35)
 
 PLATFORMS
   ruby
