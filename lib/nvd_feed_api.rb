@@ -132,11 +132,7 @@ class NVDFeedScraper
   def available_feeds
     raise 'call scrap method before using available_feeds method' if @feeds.nil?
 
-    feed_names = []
-    @feeds.each do |feed| # feed is an objet
-      feed_names.push(feed.name)
-    end
-    feed_names
+    @feeds.map(&:name)
   end
 
   # Search for CVE in all year feeds.
