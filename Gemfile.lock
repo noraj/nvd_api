@@ -13,7 +13,7 @@ GEM
       io-like (~> 0.3.0)
     ast (2.4.2)
     bigdecimal (3.1.8)
-    commonmarker (0.23.10)
+    commonmarker (0.23.11)
     io-like (0.3.1)
     json (2.7.5)
     language_server-protocol (3.17.0.3)
