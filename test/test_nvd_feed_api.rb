@@ -102,6 +102,7 @@ class NVDAPITest < Minitest::Test
     assert_instance_of(String, default_val, "default_storage_location doesn't return a string")
     # check new value
     new_val = '/srv/downloads/'
+
     assert_equal(new_val, NVDFeedScraper::Feed.default_storage_location = new_val, 'the new value was not set properly')
     # put the default value back / restore context
     NVDFeedScraper::Feed.default_storage_location = default_val
@@ -137,10 +138,12 @@ class NVDAPITest < Minitest::Test
     # Test json_file
     assert_nil(f.json_file)
     f.json_pull
+
     assert_instance_of(String, f.json_file, "json_file doesn't return a string")
     refute_empty(f.json_file, 'json_file is empty')
     # Test meta (after json_pull)
     f.meta_pull
+
     assert_instance_of(NVDFeedScraper::Meta, f.meta, "meta doesn't return a Meta object")
 
     # Test data (require json_pull)
@@ -161,6 +164,7 @@ class NVDAPITest < Minitest::Test
   def test_feed_available_cves
     f = @s.feeds('CVE-2011')
     f.json_pull
+
     assert_instance_of(Array, f.available_cves, "available_cves doesn't return an array")
     refute_empty(f.available_cves, 'available_cves returns an empty array')
   end
@@ -199,6 +203,7 @@ class NVDAPITest < Minitest::Test
   def test_feed_download_gz
     f = @s.feeds('CVE-2013')
     return_value = f.download_gz
+
     assert_instance_of(String, return_value, "download_gz doesn't return a string")
     refute_empty(return_value, 'download_gz returns an empty string')
     assert(File.file?(return_value), 'download_gz returns an unexisting file')
@@ -207,6 +212,7 @@ class NVDAPITest < Minitest::Test
   def test_feed_download_zip
     f = @s.feeds('CVE-2003')
     return_value = f.download_zip
+
     assert_instance_of(String, return_value, "download_zip doesn't return a string")
     refute_empty(return_value, 'download_zip returns an empty string')
     assert(File.file?(return_value), 'download_zip returns an unexisting file')
@@ -215,6 +221,7 @@ class NVDAPITest < Minitest::Test
   def test_feed_json_pull
     f = @s.feeds('CVE-2004')
     return_value = f.json_pull
+
     assert_instance_of(String, return_value, "json_pull doesn't return a string")
     refute_empty(return_value, 'json_pull returns an empty string')
     assert(File.file?(return_value), 'json_pull returns an unexisting file')
@@ -222,6 +229,7 @@ class NVDAPITest < Minitest::Test
 
   def test_feed_meta_pull
     f = @s.feeds('CVE-2005')
+
     assert_instance_of(NVDFeedScraper::Meta, f.meta_pull, "meta_pull doesn't return a Meta object")
   end
 
@@ -241,18 +249,21 @@ class NVDAPITest < Minitest::Test
 
   def test_meta_parse_noarg
     m = NVDFeedScraper::Meta.new('https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-2015.meta')
+
     assert_equal(0, m.parse, 'parse method return nothing')
   end
 
   def test_meta_parse_witharg
     m = NVDFeedScraper::Meta.new
     meta_url = 'https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-2015.meta'
+
     assert_equal(0, m.parse(meta_url), 'parse method return nothing')
   end
 
   def test_meta_url_setter
     m = NVDFeedScraper::Meta.new
     meta_url = 'https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-2015.meta'
+
     assert_equal(meta_url, m.url = meta_url, 'the meta URL is not set correctly')
   end
 
@@ -263,22 +274,22 @@ class NVDAPITest < Minitest::Test
     m.parse
     # Test gz_size
     assert_instance_of(String, m.gz_size, "Meta gz_size method doesn't return a string")
-    assert(m.gz_size.match?(/[0-9]+/), 'Meta gz_size is not an integer')
+    assert_match(/[0-9]+/, m.gz_size, 'Meta gz_size is not an integer')
     # Test last_modified_date
     assert_instance_of(String, m.last_modified_date, "Meta last_modified_date method doesn't return a string")
     ## Date and time of day for calendar date (extended) '%FT%T%:z'
     assert(Date.rfc3339(m.last_modified_date), 'Meta last_modified_date is not a rfc3339 date')
     # Test sha256
     assert_instance_of(String, m.sha256, "Meta sha256 method doesn't return a string")
-    assert(m.sha256.match?(/[0-9A-F]{64}/), 'Meta sha256 is not a sha256 string matching /[0-9A-F]{64}/')
+    assert_match(/[0-9A-F]{64}/, m.sha256, 'Meta sha256 is not a sha256 string matching /[0-9A-F]{64}/')
     # Test size
     assert_instance_of(String, m.size, "Meta size method doesn't return a string")
-    assert(m.size.match?(/[0-9]+/), 'Meta size is not an integer')
+    assert_match(/[0-9]+/, m.size, 'Meta size is not an integer')
     # Test url
     assert_instance_of(String, m.url, "Meta url method doesn't return a string")
     assert_equal(meta_url, m.url, 'The Meta url was modified')
     # Test zip_size
     assert_instance_of(String, m.zip_size, "Meta zip_size method doesn't return a string")
-    assert(m.zip_size.match?(/[0-9]+/), 'Meta zip_size is not an integer')
+    assert_match(/[0-9]+/, m.zip_size, 'Meta zip_size is not an integer')
   end
 end
