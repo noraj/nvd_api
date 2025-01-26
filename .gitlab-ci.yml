@@ -29,13 +29,13 @@ before_script:
 #  <<: *job_definition
 #  image: ruby:2.4-alpine
 
-test:3.3:
+test:3.4:
   <<: *job_definition
-  image: ruby:3.3-alpine
+  image: ruby:3.4-alpine
 
 pages:
   stage: deploy
-  image: ruby:3.3-alpine
+  image: ruby:3.4-alpine
   script:
     - bundle exec yard doc
     - mkdir public

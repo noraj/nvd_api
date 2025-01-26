@@ -3,7 +3,8 @@
 - Breaking changes:
   - Drop support for Ruby 2.7 and 3.0
 - Chore:
-  - Add support for Ruby 3.2 & 3.3
+  - Add support for Ruby 3.2 & 3.3 & 3.4
+  - Update dependencies
 
 # [0.4.0] - 31 January 2021
 
