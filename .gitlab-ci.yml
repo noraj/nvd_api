@@ -15,7 +15,8 @@ before_script:
   # install make, gcc for building gem native extension (commonmarker)
   # libc-dev for musl-dev dependency (stdlib.h) needed by gcc
   - apk --no-cache add coreutils git make gcc libc-dev
-  - bundle install -j $(nproc) --path vendor # Install dependencies into ./vendor/ruby
+  - bundle config set path 'vendor' # Set dependencies install dir to ./vendor/ruby
+  - bundle install -j $(nproc) # Install dependencies into ./vendor/ruby
   - bundle exec rake install # install the gem
 
 # Anchors: https://docs.gitlab.com/ee/ci/yaml/README.html#anchors
