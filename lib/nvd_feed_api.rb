@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # @author Alexandre ZANNI <alexandre.zanni@engineer.com>
 
 # Ruby internal
@@ -18,7 +20,7 @@ require 'nvd_feed_api/feed'
 #   scraper.feeds("CVE-2007")
 #   cve2007, cve2015 = scraper.feeds("CVE-2007", "CVE-2015")
 class NVDFeedScraper
-  BASE = 'https://nvd.nist.gov'.freeze
+  BASE = 'https://nvd.nist.gov'
   # The NVD url where is located the data feeds.
   URL = "#{BASE}/vuln/data-feeds".freeze
   # Load constants

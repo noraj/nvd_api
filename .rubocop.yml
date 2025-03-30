@@ -3,7 +3,7 @@ AllCops:
   NewCops: enable
   SuggestExtensions: false
 
-require:
+plugins:
   - rubocop-minitest
 
 Layout/HashAlignment:
@@ -48,9 +48,6 @@ Security/JSONLoad:
 
 Style/CaseLikeIf:
   Enabled: true
-
-Style/FrozenStringLiteralComment:
-  EnforcedStyle: never
 
 Style/PerlBackrefs:
   AutoCorrect: false

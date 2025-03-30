@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Ruby internal
 require 'digest'
 require 'net/https'

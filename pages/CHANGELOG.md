@@ -5,6 +5,7 @@
 - Chore:
   - Add support for Ruby 3.2 & 3.3 & 3.4
   - Update dependencies
+  - Add freeze literal string comment
 
 # [0.4.0] - 31 January 2021
 
