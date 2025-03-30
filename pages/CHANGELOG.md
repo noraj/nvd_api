@@ -1,4 +1,4 @@
-# [unreleased]
+# [0.5.0] - 30 March 2025
 
 - Breaking changes:
   - Drop support for Ruby 2.7 and 3.0
