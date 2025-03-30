@@ -26,10 +26,6 @@ before_script:
   - bundle exec rubocop
   - bundle exec rake test
 
-#test:2.4:
-#  <<: *job_definition
-#  image: ruby:2.4-alpine
-
 test:3.4:
   <<: *job_definition
   image: ruby:3.4-alpine

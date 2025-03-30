@@ -207,7 +207,7 @@ class NVDFeedScraper
 
         matched_feeds = feeds_to_match.intersection(feed_names)
         # and now that the intersection is done remove those virtual feeds and add CVE-2002 instead if needed
-        unless matched_feeds.intersection(virtual_feeds.to_set).empty?
+        if matched_feeds.intersect?(virtual_feeds.to_set)
           matched_feeds.subtract(virtual_feeds)
           matched_feeds.add('CVE-2002')
         end
