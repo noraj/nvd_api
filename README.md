@@ -1,11 +1,10 @@
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e595382d940a4c6b9439325b9e50d398)](https://www.codacy.com/app/noraj1337/nvd_api?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=noraj1337/nvd_api&amp;utm_campaign=Badge_Grade)
-[![pipeline status](https://gitlab.com/noraj/nvd_api/badges/master/pipeline.svg)](https://gitlab.com/noraj/nvd_api/commits/master)
+[![pipeline status](https://gitlab.com/noraj/nvd_api/badges/master/pipeline.svg)](https://gitlab.com/noraj/nvd_api/-/commits/master)
 
 [![Gem version](https://img.shields.io/gem/v/nvd_feed_api.svg)][rubygems]
 [![Gem stable](https://img.shields.io/gem/dv/nvd_feed_api/stable.svg)][rubygems]
 [![Gem latest](https://img.shields.io/gem/dtv/nvd_feed_api.svg)][rubygems]
 [![Gem total download](https://img.shields.io/gem/dt/nvd_feed_api.svg)][rubygems]
-[![Rawsec's CyberSecurity Inventory](https://inventory.rawsec.ml/img/badges/Rawsec-inventoried-FF5050_flat.svg)](https://inventory.rawsec.ml/tools.html#nvd_feed_api)
+[![Rawsec's CyberSecurity Inventory](https://inventory.raw.pm/img/badges/Rawsec-inventoried-FF5050_flat.svg)](https://inventory.raw.pm/tools.html#nvd_feed_api)
 
 [rubygems]:https://rubygems.org/gems/nvd_feed_api/
 
