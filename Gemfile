@@ -5,7 +5,7 @@ source 'https://rubygems.org'
 gemspec
 
 group :runtime, :cli do
-  gem 'archive-zip', '~> 0.11'
+  gem 'archive-zip', '0.13.0.pre1'
   gem 'nokogiri', '~> 1.11'
   gem 'oj', '>= 3.7.8', '<4'
 end
