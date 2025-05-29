@@ -1,3 +1,12 @@
+# [0.6.0] - 29 May 2025
+
+- Enhancements and fixes:
+  - migrating from CVE JSON 1.1 to 2.0 spec
+    - 1.1 feeds will be removed in the future
+    - 1.1 feeds do not contain Deferred status CVEs
+- Chore:
+  - Update dependencies
+
 # [0.5.0] - 30 March 2025
 
 - Breaking changes:
@@ -85,7 +94,7 @@
 
 [0.0.1.rc2]: https://gitlab.com/noraj/nvd_api/tags/v0.0.1.rc2
 
-- Add some contribution guidelines, issue and MR templates.
+- Add some contribution guidelines, issues and MR templates.
 - Improve the README to be a good entrypoint.
 - Improve the FEATURES.
 

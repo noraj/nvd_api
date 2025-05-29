@@ -42,7 +42,7 @@ class NVDFeedScraper
     doc = Nokogiri::HTML(html)
     @feeds = []
     tmp_feeds = {}
-    doc.css('#vuln-feed-table table.xml-feed-table tr[data-testid]').each do |tr|
+    doc.css('div[data-testid=nvd-json-2-feed-table] table.xml-feed-table tr[data-testid]').each do |tr|
       num, type = tr.attr('data-testid')[13..].split('-')
       case type
       when 'meta'
@@ -130,7 +130,7 @@ class NVDFeedScraper
   # Return a list with the name of all available feeds. Returned feed names can be use as argument for {#feeds} method. Can only be called after {#scrap}.
   # @return [Array<String>] List with the name of all available feeds.
   # @example
-  #   scraper.available_feeds => ["CVE-Modified", "CVE-Recent", "CVE-2017", "CVE-2016", "CVE-2015", "CVE-2014", "CVE-2013", "CVE-2012", "CVE-2011", "CVE-2010", "CVE-2009", "CVE-2008", "CVE-2007", "CVE-2006", "CVE-2005", "CVE-2004", "CVE-2003", "CVE-2002"]
+  #   scraper.available_feeds => ["CVE-Modified", "CVE-Recent", "CVE-2025", "[…]", "CVE-2002"]
   def available_feeds
     raise 'call scrap method before using available_feeds method' if @feeds.nil?
 
@@ -153,8 +153,7 @@ class NVDFeedScraper
   #   @return [Array] an Array of CVE, each CVE is a Ruby Hash.
   # @todo implement a CVE Class instead of returning a Hash. May not be in the same order as provided.
   # @note {#scrap} is needed before using this method.
-  # @see https://csrc.nist.gov/schema/nvd/feed/1.1-Beta/nvd_cve_feed_json_1.1_beta.schema
-  # @see https://csrc.nist.gov/schema/nvd/feed/1.1-Beta/CVE_JSON_4.0_min_1.1_beta.schema
+  # @see https://csrc.nist.gov/schema/nvd/api/2.0/cve_api_json_2.0.schema
   # @example
   #   s = NVDFeedScraper.new
   #   s.scrap

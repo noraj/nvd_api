@@ -34,17 +34,17 @@ class NVDFeedScraper
 
     # @return [String] the URL of the metadata file of the feed.
     # @example
-    #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.meta'
+    #   'https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2007.meta'
     attr_reader :meta_url
 
     # @return [String] the URL of the gz archive of the feed.
     # @example
-    #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.json.gz'
+    #   'https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2007.json.gz'
     attr_reader :gz_url
 
     # @return [String] the URL of the zip archive of the feed.
     # @example
-    #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.json.zip'
+    #   'https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2007.json.zip'
     attr_reader :zip_url
 
     # @return [Meta] the {Meta} object of the feed.
@@ -170,11 +170,11 @@ class NVDFeedScraper
         # Set data
         if @data_type.nil?
           doc = Oj::Doc.open(File.read(@json_file))
-          @data_type = doc.fetch('/CVE_data_type')
-          @data_format = doc.fetch('/CVE_data_format')
-          @data_version = doc.fetch('/CVE_data_version').to_f
-          @data_number_of_cves = doc.fetch('/CVE_data_numberOfCVEs').to_i
-          @data_timestamp = Date.strptime(doc.fetch('/CVE_data_timestamp'), '%FT%RZ')
+          @data_type = 'CVE' # @data_type was doc.fetch('/CVE_data_type') in 1.1 schema but was removed in 2.0 so keep this string for retrocompatibility
+          @data_format = doc.fetch('/format')
+          @data_version = doc.fetch('/version').to_f
+          @data_number_of_cves = doc.fetch('/totalResults').to_i
+          @data_timestamp = Date.strptime(doc.fetch('/timestamp'), '%FT%T.%N')
           doc.close
         end
       else
@@ -189,11 +189,11 @@ class NVDFeedScraper
 
         # update data
         doc = Oj::Doc.open(File.read(@json_file))
-        @data_type = doc.fetch('/CVE_data_type')
-        @data_format = doc.fetch('/CVE_data_format')
-        @data_version = doc.fetch('/CVE_data_version').to_f
-        @data_number_of_cves = doc.fetch('/CVE_data_numberOfCVEs').to_i
-        @data_timestamp = Date.strptime(doc.fetch('/CVE_data_timestamp'), '%FT%RZ')
+        @data_type = 'CVE' # @data_type was doc.fetch('/CVE_data_type') in 1.1 schema but was removed in 2.0 so keep this string for retrocompatibility
+        @data_format = doc.fetch('/format')
+        @data_version = doc.fetch('/version').to_f
+        @data_number_of_cves = doc.fetch('/totalResults').to_i
+        @data_timestamp = Date.strptime(doc.fetch('/timestamp'), '%FT%T.%N')
         doc.close
       end
       return @json_file
@@ -215,8 +215,7 @@ class NVDFeedScraper
     #   @return [Array] an Array of CVE, each CVE is a Ruby Hash. May not be in the same order as provided.
     # @note {#json_pull} is needed before using this method. Remember you're searching only in the current feed.
     # @todo implement a CVE Class instead of returning a Hash.
-    # @see https://csrc.nist.gov/schema/nvd/feed/1.1-Beta/nvd_cve_feed_json_1.1_beta.schema
-    # @see https://csrc.nist.gov/schema/nvd/feed/1.1-Beta/CVE_JSON_4.0_min_1.1_beta.schema
+    # @see https://csrc.nist.gov/schema/nvd/api/2.0/cve_api_json_2.0.schema
     # @example
     #   s = NVDFeedScraper.new
     #   s.scrap
@@ -236,10 +235,10 @@ class NVDFeedScraper
           raise "bad CVE name (#{arg_cve[0]})" unless /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(arg_cve[0])
 
           doc = Oj::Doc.open(File.read(@json_file))
-          # Quicker than doc.fetch('/CVE_Items').size
+          # Quicker than doc.fetch('/vulnerabilities').size
           (1..@data_number_of_cves).each do |i|
-            if arg_cve[0].upcase == doc.fetch("/CVE_Items/#{i}/cve/CVE_data_meta/ID")
-              return_value = doc.fetch("/CVE_Items/#{i}")
+            if arg_cve[0].upcase == doc.fetch("/vulnerabilities/#{i}/cve/id")
+              return_value = doc.fetch("/vulnerabilities/#{i}")
               break
             end
           end
@@ -253,10 +252,10 @@ class NVDFeedScraper
           raise 'bad CVE name' unless cves_to_find.all? { |x| /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(x) }
 
           doc = Oj::Doc.open(File.read(@json_file))
-          # Quicker than doc.fetch('/CVE_Items').size
+          # Quicker than doc.fetch('/vulnerabilities').size
           (1..@data_number_of_cves).each do |i|
-            doc.move("/CVE_Items/#{i}")
-            cve_id = doc.fetch('cve/CVE_data_meta/ID')
+            doc.move("/vulnerabilities/#{i}")
+            cve_id = doc.fetch('cve/id')
             if cves_to_find.include?(cve_id)
               return_value.push(doc.fetch)
               cves_to_find.delete(cve_id)
@@ -283,11 +282,11 @@ class NVDFeedScraper
       raise "json_file (#{@json_file}) doesn't exist" unless File.file?(@json_file)
 
       doc = Oj::Doc.open(File.read(@json_file))
-      # Quicker than doc.fetch('/CVE_Items').size
+      # Quicker than doc.fetch('/vulnerabilities').size
       cve_names = []
       (1..@data_number_of_cves).each do |i|
-        doc.move("/CVE_Items/#{i}")
-        cve_names.push(doc.fetch('cve/CVE_data_meta/ID'))
+        doc.move("/vulnerabilities/#{i}")
+        cve_names.push(doc.fetch('cve/id'))
       end
       doc.close
       return cve_names
@@ -316,7 +315,7 @@ class NVDFeedScraper
     # @param arg_meta_url [String] the new URL of the metadata file of the feed.
     # @return [String] the new URL of the metadata file of the feed.
     # @example
-    #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.meta'
+    #   'https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2007.meta'
     def meta_url=(arg_meta_url)
       raise "meta_url (#{arg_meta_url}) is not a string" unless arg_meta_url.is_a?(String)
 
@@ -326,7 +325,7 @@ class NVDFeedScraper
     # @param arg_gz_url [String] the new URL of the gz archive of the feed.
     # @return [String] the new URL of the gz archive of the feed.
     # @example
-    #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.json.gz'
+    #   'https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2007.json.gz'
     def gz_url=(arg_gz_url)
       raise "gz_url (#{arg_gz_url}) is not a string" unless arg_gz_url.is_a?(String)
 
@@ -336,7 +335,7 @@ class NVDFeedScraper
     # @param arg_zip_url [String] the new URL of the zip archive of the feed.
     # @return [String] the new URL of the zip archive of the feed.
     # @example
-    #   'https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-2007.json.zip'
+    #   'https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2007.json.zip'
     def zip_url=(arg_zip_url)
       raise "zip_url (#{arg_zip_url}) is not a string" unless arg_zip_url.is_a?(String)
 

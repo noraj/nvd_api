@@ -112,9 +112,9 @@ class NVDAPITest < Minitest::Test
 
   def test_feed_attributes
     name = 'CVE-2010'
-    meta_url = 'https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-2010.meta'
-    gz_url = 'https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-2010.json.gz'
-    zip_url = 'https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-2010.json.zip'
+    meta_url = 'https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2010.meta'
+    gz_url = 'https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2010.json.gz'
+    zip_url = 'https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2010.json.zip'
     f = @s.feeds('CVE-2010')
     # Test name
     assert_instance_of(String, f.name, "name doesn't return a string")
@@ -250,28 +250,28 @@ class NVDAPITest < Minitest::Test
   end
 
   def test_meta_parse_noarg
-    m = NVDFeedScraper::Meta.new('https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-2015.meta')
+    m = NVDFeedScraper::Meta.new('https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2015.meta')
 
     assert_equal(0, m.parse, 'parse method return nothing')
   end
 
   def test_meta_parse_witharg
     m = NVDFeedScraper::Meta.new
-    meta_url = 'https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-2015.meta'
+    meta_url = 'https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2015.meta'
 
     assert_equal(0, m.parse(meta_url), 'parse method return nothing')
   end
 
   def test_meta_url_setter
     m = NVDFeedScraper::Meta.new
-    meta_url = 'https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-2015.meta'
+    meta_url = 'https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2015.meta'
 
     assert_equal(meta_url, m.url = meta_url, 'the meta URL is not set correctly')
   end
 
   def test_meta_attributes
     m = NVDFeedScraper::Meta.new
-    meta_url = 'https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-2015.meta'
+    meta_url = 'https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2015.meta'
     m.url = meta_url
     m.parse
     # Test gz_size
