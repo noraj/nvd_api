@@ -153,8 +153,8 @@ class NVDFeedScraper
   #   @return [Array] an Array of CVE, each CVE is a Ruby Hash.
   # @todo implement a CVE Class instead of returning a Hash. May not be in the same order as provided.
   # @note {#scrap} is needed before using this method.
-  # @see https://scap.nist.gov/schema/nvd/feed/0.1/nvd_cve_feed_json_0.1_beta.schema
-  # @see https://scap.nist.gov/schema/nvd/feed/0.1/CVE_JSON_4.0_min.schema
+  # @see https://csrc.nist.gov/schema/nvd/feed/1.1-Beta/nvd_cve_feed_json_1.1_beta.schema
+  # @see https://csrc.nist.gov/schema/nvd/feed/1.1-Beta/CVE_JSON_4.0_min_1.1_beta.schema
   # @example
   #   s = NVDFeedScraper.new
   #   s.scrap
