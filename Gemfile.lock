@@ -9,7 +9,7 @@ GIT
 PATH
   remote: .
   specs:
-    nvd_feed_api (0.6.0)
+    nvd_feed_api (0.7.0)
       archive-zip (~> 0.11)
       nokogiri (~> 1.11)
       oj (>= 3.7.8, < 4)
@@ -20,21 +20,16 @@ GEM
     archive-zip (0.13.0.pre1)
       io-like (~> 0.4.0.pre1)
     ast (2.4.3)
-    bigdecimal (3.3.1)
+    bigdecimal (4.0.1)
     commonmarker (2.6.0)
       rb_sys (~> 0.9)
-    commonmarker (2.6.0-aarch64-linux)
-    commonmarker (2.6.0-aarch64-linux-musl)
-    commonmarker (2.6.0-arm64-darwin)
-    commonmarker (2.6.0-x86_64-darwin)
-    commonmarker (2.6.0-x86_64-linux)
-    commonmarker (2.6.0-x86_64-linux-musl)
-    io-like (0.4.0.pre1)
+    io-like (0.4.0)
     json (2.18.0)
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
     logger (1.7.0)
-    minitest (5.27.0)
+    minitest (6.0.1)
+      prism (~> 1.5)
     nokogiri (1.19.0-aarch64-linux-gnu)
       racc (~> 1.4)
     nokogiri (1.19.0-aarch64-linux-musl)
@@ -59,15 +54,15 @@ GEM
     parser (3.3.10.0)
       ast (~> 2.4.1)
       racc
-    prism (1.6.0)
+    prism (1.7.0)
     racc (1.8.1)
     rainbow (3.1.1)
     rake (13.3.1)
     rake-compiler-dock (1.10.0)
-    rb_sys (0.9.119)
+    rb_sys (0.9.123)
       rake-compiler-dock (= 1.10.0)
     regexp_parser (2.11.3)
-    rubocop (1.82.0)
+    rubocop (1.82.1)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -78,9 +73,9 @@ GEM
       rubocop-ast (>= 1.48.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.48.0)
+    rubocop-ast (1.49.0)
       parser (>= 3.3.7.2)
-      prism (~> 1.4)
+      prism (~> 1.7)
     rubocop-minitest (0.38.2)
       lint_roller (~> 1.1)
       rubocop (>= 1.75.0, < 2.0)
@@ -102,10 +97,10 @@ PLATFORMS
 
 DEPENDENCIES
   archive-zip (= 0.13.0.pre1)
-  bundler (~> 2.1)
+  bundler (~> 4.0)
   commonmarker (~> 2.0)
   logger (< 2.0)
-  minitest (~> 5.25)
+  minitest (~> 6.0)
   nokogiri (~> 1.11)
   nvd_feed_api!
   oj (>= 3.7.8, < 4)
@@ -115,4 +110,4 @@ DEPENDENCIES
   yard!
 
 BUNDLED WITH
-   2.6.2
+  4.0.3

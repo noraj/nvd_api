@@ -4,7 +4,6 @@
 
 # Ruby internal
 require 'net/https'
-require 'set'
 # External
 require 'nokogiri'
 # Project internal

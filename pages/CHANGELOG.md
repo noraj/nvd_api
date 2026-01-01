@@ -1,3 +1,11 @@
+# [0.7.0] - 01 January 2026
+
+- Breaking changes:
+  - Drop support for Ruby 3.1
+- Chore:
+  - Add support for Ruby 4.0
+  - Update dependencies
+
 # [0.6.0] - 29 May 2025
 
 - Enhancements and fixes:
