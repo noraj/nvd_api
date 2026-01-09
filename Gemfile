@@ -25,9 +25,7 @@ group :development, :lint do
 end
 
 group :development, :docs do
-  # commonmarker 2.6.0 currently not supporting on ruby 4.0
-  # https://github.com/gjtorikian/commonmarker/issues/427
-  gem 'commonmarker', '~> 2.0' # for markdown support in YARD
+  gem 'commonmarker', '~> 2.6', '>= 2.6.1'
   gem 'logger', '< 2.0'
   # gem 'yard', ['>= 0.9.27', '< 0.10']
   # yard not supporting recent commonmarker version yet https://github.com/lsegal/yard/issues/1528
