@@ -26,7 +26,9 @@ end
 
 group :development, :docs do
   gem 'commonmarker', '~> 2.6', '>= 2.6.1'
-  gem 'logger', '< 2.0'
+  gem 'irb' # https://github.com/lsegal/yard/issues/1636
+  gem 'logger' # https://github.com/lsegal/yard/issues/1636
+  gem 'ostruct' # https://github.com/lsegal/yard/issues/1636
   # gem 'yard', ['>= 0.9.27', '< 0.10']
   # yard not supporting recent commonmarker version yet https://github.com/lsegal/yard/issues/1528
   # yard 0.9.38 not supporting ruby 4.0 yet https://github.com/lsegal/yard/issues/1636
