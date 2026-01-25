@@ -12,9 +12,9 @@ before_script:
   - gem install bundler --no-document # Bundler is not installed with the image
   # install nproc (coreutils) for bundle -j
   # install git for building the gemspec
-  # install make, gcc for building gem native extension (commonmarker)
-  # libc-dev for musl-dev dependency (stdlib.h) needed by gcc
-  - apk --no-cache add coreutils git make gcc libc-dev
+  # install make, gcc (build-base) for building gem native extension (commonmarker)
+  # libc-dev for musl-dev dependency (stdlib.h) needed by gcc (build-base)
+  - apk --no-cache add coreutils git build-base gcompat
   - bundle config set path 'vendor' # Set dependencies install dir to ./vendor/ruby
   - bundle install -j $(nproc) # Install dependencies into ./vendor/ruby
   - bundle exec rake install # install the gem
