@@ -14,9 +14,9 @@ before_script:
   # install git for building the gemspec
   # install make, gcc (build-base) for building gem native extension (commonmarker)
   # libc-dev for musl-dev dependency (stdlib.h) needed by gcc (build-base)
-  # libyaml-dev to build psych ruby native extension
+  # yaml-dev to build psych ruby native extension
   # add gcompat is GNU compatibility for MUSL libc
-  - apk --no-cache add coreutils git build-base libyaml-dev
+  - apk --no-cache add coreutils git build-base yaml-dev
   - bundle config set path 'vendor' # Set dependencies install dir to ./vendor/ruby
   - bundle install -j $(nproc) # Install dependencies into ./vendor/ruby
   - bundle exec rake install # install the gem
