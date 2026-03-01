@@ -248,7 +248,7 @@ class NVDFeedScraper
           # Sorting CVE can allow us to parse quicker
           # Upcase to be sure include? works
           cves_to_find = arg_cve[0].map(&:upcase).sort
-          raise 'one of the provided arguments is not a String' unless cves_to_find.all? { |x| x.is_a?(String) }
+          raise 'one of the provided arguments is not a String' unless cves_to_find.all?(String)
           raise 'bad CVE name' unless cves_to_find.all? { |x| /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(x) }
 
           doc = Oj::Doc.open(File.read(@json_file))

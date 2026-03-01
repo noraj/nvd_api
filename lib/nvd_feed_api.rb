@@ -99,7 +99,7 @@ class NVDFeedScraper
         end
         # if nothing found return nil
       when Array
-        raise 'one of the provided arguments is not a String' unless arg_feeds[0].all? { |x| x.is_a?(String) }
+        raise 'one of the provided arguments is not a String' unless arg_feeds[0].all?(String)
 
         # Sorting CVE can allow us to parse quicker
         # Upcase to be sure include? works
@@ -185,7 +185,7 @@ class NVDFeedScraper
         f.json_pull
         return_value = f.cve(arg_cve[0])
       when Array
-        raise 'one of the provided arguments is not a String' unless arg_cve[0].all? { |x| x.is_a?(String) }
+        raise 'one of the provided arguments is not a String' unless arg_cve[0].all?(String)
         raise 'bad CVE name' unless arg_cve[0].all? { |x| /^CVE-[0-9]{4}-[0-9]{4,}$/i.match?(x) }
 
         return_value = []
