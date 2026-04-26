@@ -25,12 +25,7 @@ group :development, :lint do
 end
 
 group :development, :docs do
-  gem 'commonmarker', '~> 2.6', '>= 2.6.1'
-  gem 'irb' # https://github.com/lsegal/yard/issues/1636
-  gem 'logger' # https://github.com/lsegal/yard/issues/1636
-  gem 'ostruct' # https://github.com/lsegal/yard/issues/1636
-  # gem 'yard', ['>= 0.9.27', '< 0.10']
-  # yard not supporting recent commonmarker version yet https://github.com/lsegal/yard/issues/1528
-  # yard 0.9.38 not supporting ruby 4.0 yet https://github.com/lsegal/yard/issues/1636
-  gem 'yard', github: 'ParadoxV5/yard', ref: '9e869c940859570b07b81c5eadd6070e76f6291e', branch: 'commonmarker-1.0'
+  gem 'commonmarker', '~> 2.8'
+  gem 'irb' # to supress warning because using @overload from yard https://github.com/lsegal/yard/pull/1643#issuecomment-4322721189
+  gem 'yard', ['>= 0.9.43', '< 0.10']
 end
