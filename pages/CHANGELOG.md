@@ -2,6 +2,8 @@
 
 ## unreleased
 
+# [0.8.0] - 01 November 2026
+
 - **Breaking change**:
   - Drop support for Ruby 3.2
     - Ruby 3.2 is ([EOL](https://www.ruby-lang.org/en/downloads/branches/))
