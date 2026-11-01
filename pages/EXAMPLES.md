@@ -7,8 +7,6 @@ For all examples don't forget to add `require 'nvd_feed_api'`.
 ```ruby
 # Initialize the scraper.
 s = NVDFeedScraper.new
-# Scrap the NVD website to get the feeds attributes.
-s.scrap
 # Change the default feed storage location beacause default value is '/tmp/'.
 # '/tmp/' is mounted as tmpFS and is cleaned at every start.
 # This will considerably speed up your performance is you have to reboot.

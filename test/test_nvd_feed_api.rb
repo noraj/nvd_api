@@ -7,11 +7,11 @@ require 'date'
 class NVDAPITest < Minitest::Test
   def setup
     @s = NVDFeedScraper.new
-    @s.scrap # needed for feeds method
+    @s.populate # needed for feeds method
   end
 
   def test_scraper_scrap
-    assert_operator(0, :<, @s.scrap, 'scrap method returns nothing')
+    assert_operator(0, :<, @s.populate, 'populate method returns nothing')
   end
 
   def test_scraper_feeds_noarg
@@ -120,9 +120,8 @@ class NVDAPITest < Minitest::Test
     assert_instance_of(String, f.name, "name doesn't return a string")
     refute_empty(f.name, 'name is empty')
     assert_equal(name, f.name, 'The name of the feed was modified')
-    # Test updated
-    assert_instance_of(String, f.updated, "updated doesn't return a string")
-    refute_empty(f.updated, 'updated is empty')
+    # Test updated (before json_pull)
+    assert_nil(f.updated)
     # Test gz_url
     assert_instance_of(String, f.gz_url, "gz_url doesn't return a string")
     refute_empty(f.gz_url, 'gz_url is empty')
@@ -237,7 +236,7 @@ class NVDAPITest < Minitest::Test
 
   def test_feed_update!
     f = @s.feeds('CVE-2006')
-    @s.scrap
+    @s.populate
     f_new = @s.feeds('CVE-2006')
     # Right arg
     # can't use assert_instance_of because there is no boolean class

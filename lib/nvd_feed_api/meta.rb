@@ -10,7 +10,7 @@ class NVDFeedScraper
   #
   # @example
   #   s = NVDFeedScraper.new
-  #   s.scrap
+  #   s.populate
   #   metaUrl = s.feeds("CVE-2014").meta_url
   #   m = NVDFeedScraper::Meta.new
   #   m.url = metaUrl

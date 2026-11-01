@@ -3,7 +3,7 @@
 # @author Alexandre ZANNI <alexandre.zanni@engineer.com>
 
 # Ruby internal
-require 'net/https'
+# require 'net/https'
 # External
 require 'nokogiri'
 # Project internal
@@ -13,7 +13,7 @@ require 'nvd_feed_api/feed'
 # The class that parse NVD website to get information.
 # @example Initialize a NVDFeedScraper object, get the feeds and see them:
 #   scraper = NVDFeedScraper.new
-#   scraper.scrap
+#   # scraper.populate
 #   scraper.available_feeds
 #   scraper.feeds
 #   scraper.feeds("CVE-2007")
@@ -28,26 +28,56 @@ class NVDFeedScraper
   # Initialize the scraper
   def initialize
     @url = URL
-    @feeds = nil
+    @feeds = populate
+  end
+
+  # Populate feeds deterministically without scraping the NVD website.
+  # Replaces {scrap}.
+  # @return [Integer] Number of populated feeds.
+  def populate
+    @feeds = []
+    current_year = Time.now.year
+    names = ['CVE-Modified', 'CVE-Recent'] + (2002..current_year).to_a.reverse.map { |year| "CVE-#{year}" }
+    names.each do |name|
+      file_part = case name
+                  when 'CVE-Modified' then 'modified'
+                  when 'CVE-Recent' then 'recent'
+                  else name.split('-').last
+                  end
+      base_path = "#{BASE}/feeds/json/cve/2.0/nvdcve-2.0-#{file_part}"
+      @feeds.push(Feed.new(name,
+                           nil,
+                           "#{base_path}.meta",
+                           "#{base_path}.json.gz",
+                           "#{base_path}.json.zip"))
+    end
+    return @feeds.size
   end
 
   # Scrap / parse the website to get the feeds and fill the {#feeds} attribute.
   # @note {#scrap} need to be called only once but can be called again to update if the NVD feed page changed.
+  # @deprecated Since upstream use a JS SPA, an headless browser is required which is slow and unreliable. Replaced by {populate}.
   # @return [Integer] Number of scrapped feeds.
   def scrap
-    uri = URI(@url)
-    html = Net::HTTP.get(uri)
+    require 'lightpanda'
+    begin
+      browser = Lightpanda::Browser.new(timeout: 60)
+      browser.go_to(@url, wait: true)
+      html = browser.body
+    ensure
+      browser.quit
+    end
 
     doc = Nokogiri::HTML(html)
     @feeds = []
     tmp_feeds = {}
     doc.css('div[data-testid=nvd-json-2-feed-table] table.xml-feed-table tr[data-testid]').each do |tr|
-      num, type = tr.attr('data-testid')[13..].split('-')
+      num, type = tr.attr('data-testid').split('-')[1..2]
       case type
       when 'meta'
         tmp_feeds[num] = {}
-        tmp_feeds[num][:name] = tr.css('td')[0].text
-        tmp_feeds[num][:updated] = tr.css('td')[1].text
+        tmp_feeds[num][:name] = tr.css('td')[0].text.strip
+        tmp_feeds[num][:updated] = tr.css('td')[1].text.strip
         tmp_feeds[num][:meta] = BASE + tr.css('td')[2].css('> a').attr('href').value
       when 'gz'
         tmp_feeds[num][:gz] = BASE + tr.css('td > a').attr('href').value
@@ -63,7 +93,7 @@ class NVDFeedScraper
     return @feeds.size
   end
 
-  # Return feeds. Can only be called after {#scrap}.
+  # Return feeds. Can only be called after {#populate}.
   # @overload feeds
   #   All the feeds.
   #   @return [Array<Feed>] Attributes of all feeds. It's an array of {Feed} object.
@@ -86,7 +116,7 @@ class NVDFeedScraper
   #   scraper.feeds("CVE-2005", "CVE-2002") # => return CVE-2005 and CVE-2002 feeds
   # @see https://nvd.nist.gov/vuln/data-feeds
   def feeds(*arg_feeds)
-    raise 'call scrap method before using feeds method' if @feeds.nil?
+    raise 'call populate method before using feeds method' if @feeds.nil?
 
     return_value = nil
     if arg_feeds.empty?
@@ -126,12 +156,12 @@ class NVDFeedScraper
     return return_value
   end
 
-  # Return a list with the name of all available feeds. Returned feed names can be use as argument for {#feeds} method. Can only be called after {#scrap}.
+  # Return a list with the name of all available feeds. Returned feed names can be use as argument for {#feeds} method. Can only be called after {#populate}.
   # @return [Array<String>] List with the name of all available feeds.
   # @example
   #   scraper.available_feeds => ["CVE-Modified", "CVE-Recent", "CVE-2025", "[…]", "CVE-2002"]
   def available_feeds
-    raise 'call scrap method before using available_feeds method' if @feeds.nil?
+    raise 'call populate method before using available_feeds method' if @feeds.nil?
 
     @feeds.map(&:name)
   end
@@ -155,7 +185,7 @@ class NVDFeedScraper
   # @see https://csrc.nist.gov/schema/nvd/api/2.0/cve_api_json_2.0.schema
   # @example
   #   s = NVDFeedScraper.new
-  #   s.scrap
+  #   s.populate
   #   s.cve("CVE-2014-0002", "cve-2014-0001")
   def cve(*arg_cve)
     return_value = nil
@@ -250,14 +280,14 @@ class NVDFeedScraper
   #   @return [Array<Boolean>] `true` if the feed was updated, `false` if it wasn't.
   # @example
   #   s = NVDFeedScraper.new
-  #   s.scrap
+  #   s.populate
   #   f2015, f2017 = s.feeds("CVE-2015", "CVE-2017")
   #   s.update_feeds(f2015, f2017) # => [false, false]
   def update_feeds(*arg_feed)
     return_value = false
     raise 'no argument provided, 1 or more expected' if arg_feed.empty?
 
-    scrap
+    populate
     if arg_feed.length == 1
       case arg_feed[0]
       when Feed

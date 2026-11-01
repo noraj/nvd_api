@@ -28,6 +28,7 @@ class NVDFeedScraper
     attr_reader :name
 
     # @return [String] the last update date of the feed information on the NVD website.
+    # @deprecated Is broken since {NVDFeedScraper#scrap} was replaced with {NVDFeedScraper#populate}.
     # @example
     #   '10/19/2017 3:27:02 AM -04:00'
     attr_reader :updated
@@ -53,7 +54,7 @@ class NVDFeedScraper
     #   Note that {#json_pull} also calls {#meta_pull}.
     # @example
     #   s = NVDFeedScraper.new
-    #   s.scrap
+    #   s.populate
     #   f = s.feeds("CVE-2014")
     #   f.meta # => nil
     #   f.meta_pull
@@ -64,7 +65,7 @@ class NVDFeedScraper
     # @note Return nil if not previously loaded by {#json_pull}.
     # @example
     #   s = NVDFeedScraper.new
-    #   s.scrap
+    #   s.populate
     #   f = s.feeds("CVE-2014")
     #   f.json_file # => nil
     #   f.json_pull
@@ -218,7 +219,7 @@ class NVDFeedScraper
     # @see https://csrc.nist.gov/schema/nvd/api/2.0/cve_api_json_2.0.schema
     # @example
     #   s = NVDFeedScraper.new
-    #   s.scrap
+    #   s.populate
     #   f = s.feeds("CVE-2014")
     #   f.json_pull
     #   f.cve("CVE-2014-0002", "cve-2014-0001")

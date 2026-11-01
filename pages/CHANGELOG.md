@@ -6,6 +6,9 @@
   - Drop support for Ruby 3.2
     - Ruby 3.2 is ([EOL](https://www.ruby-lang.org/en/downloads/branches/))
     - parallel-2.1.0 requires ruby version >= 3.3
+  - Deprecate `NVDFeedScraper.scrap` and replacted it with `NVDFeedScraper.populate` that populate feeds deterministically without scraping the NVD website. It's faster, more reliabled, but we can't have the last update date as a trade off.
+    - `NVDFeedScraper.scrap` because NVD changed from plain HTML page to a JavaScript SPA that need JavaScript evaluation for the HTML DOM to be generated. So now a headless broswer is required, which is slow and very unreliable.
+    - `updated` attribute of `Feed` doesn't work anymore as a result as it was a data scraped from HTML table
 
 # [0.7.0] - 01 January 2026
 
