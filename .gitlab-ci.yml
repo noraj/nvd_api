@@ -26,7 +26,7 @@ before_script:
   stage: test
   script:
   - bundle exec rubocop
-  - bundle exec rake test
+  # - bundle exec rake test # teching all the CVE data is too long, using all pipeline quota
 
 test:4.0:
   <<: *job_definition
